@@ -1,30 +1,69 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose'
 
-const TaskSchema = new mongoose.Schema(
+const taskSchema = new mongoose.Schema(
   {
     title: {
       type: String,
-      required: true,
+      required: [true, 'Task title is required'],
+      trim: true,
+      minlength: 2,
+      maxlength: 100
     },
+
     description: {
       type: String,
+      default: '',
+      trim: true,
+      maxlength: 1000
     },
+
+    category: { type: String, default: '' },
+
     status: {
       type: String,
-      enum: ["Pending", "In-process", "Completed"],
-      default: "Pending",
+      enum: ['pending', 'inProgress', 'completed'],
+      default: 'pending'
     },
+
     priority: {
       type: String,
-      enum: ["High", "Medium", "Low"],
-      default: "Low",
+      enum: ['low', 'medium', 'high'],
+      default: 'medium'
     },
-    dueDate: {
-      type: Date,
-    },
-  },
-  { timestamps: true },
-);
 
-const Task = mongoose.model("Task", TaskSchema);
-export default Task;
+    deadline: {
+      type: Date,
+      default: null,
+      index: true
+    },
+
+    team: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Team',
+      default: null
+    },
+
+    createdBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true
+    },
+
+    assignedTo: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true
+    }
+  },
+  { timestamps: true }
+)
+
+/* Dashboard filters */
+taskSchema.index({ assignedTo: 1, status: 1 })
+
+/* User task history */
+taskSchema.index({ createdBy: 1, createdAt: -1 })
+
+const Task = mongoose.model('Task', taskSchema)
+
+export default Task
