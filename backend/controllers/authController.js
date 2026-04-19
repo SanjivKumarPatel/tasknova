@@ -24,10 +24,10 @@ export const registerUser = asyncHandler(async (req, res) => {
   const user = await User.create({ name, email, password })
 
   res.status(201).json({
-      success: true,
-      message: 'User registered successfully',
-      token: generateToken(user._id),
-      user
+    success: true,
+    message: 'User registered successfully',
+    token: generateToken(user._id),
+    user
   })
 })
 
@@ -40,7 +40,9 @@ export const loginUser = asyncHandler(async (req, res) => {
     throw error
   }
 
-  const user = await User.findOne({ email: email.toLowerCase().trim() }).select('+password')
+  const user = await User.findOne({ email: email.toLowerCase().trim() }).select(
+    '+password'
+  )
 
   if (!user) {
     const error = new Error('Invalid credentials')
@@ -65,4 +67,18 @@ export const loginUser = asyncHandler(async (req, res) => {
     token: generateToken(user._id),
     user
   })
+})
+
+export const getProfile = asyncHandler(async (req, res) => {
+  const userId = req.user.id
+
+  const user = await User.findById(userId)
+
+  if (!user) {
+    const error = new Error('User not found')
+    error.statusCode = 404
+    throw error
+  }
+
+  res.status(200).json({ success: true, user })
 })
