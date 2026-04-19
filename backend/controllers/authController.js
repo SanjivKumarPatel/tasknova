@@ -28,5 +28,41 @@ export const registerUser = asyncHandler(async (req, res) => {
       message: 'User registered successfully',
       token: generateToken(user._id),
       user
-    })
+  })
+})
+
+export const loginUser = asyncHandler(async (req, res) => {
+  const { email, password } = req.body
+
+  if (!email || !password) {
+    const error = new Error('Email and password are required')
+    error.statusCode = 400
+    throw error
+  }
+
+  const user = await User.findOne({ email: email.toLowerCase().trim() }).select('+password')
+
+  if (!user) {
+    const error = new Error('Invalid credentials')
+    error.statusCode = 401
+    throw error
+  }
+
+  const isMatch = await user.comparePassword(password)
+
+  if (!isMatch) {
+    const error = new Error('Invalid credentials')
+    error.statusCode = 401
+    throw error
+  }
+
+  user.lastLogin = new Date()
+  await user.save()
+
+  res.status(200).json({
+    success: true,
+    message: 'Login successful',
+    token: generateToken(user._id),
+    user
+  })
 })
