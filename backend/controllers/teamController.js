@@ -28,17 +28,16 @@ export const createTeam = asyncHandler(async (req, res) => {
 
 export const getAllTeams = asyncHandler(async (req, res) => {
   const userId = req.user.id
+  const query = req.user.role === 'admin'
+    ? {}
+    : { members: userId }
 
-  const teams = await Team.find({ members: userId }).populate(
+  const teams = await Team.find(query).populate(
     'createdBy members',
     'name email'
   )
 
-  res.status(200).json({
-    success: true,
-    count: teams.length,
-    teams
-  })
+  res.status(200).json({ success: true, count: teams.length,teams })
 })
 
 export const getTeam = asyncHandler(async (req, res) => {
@@ -53,9 +52,11 @@ export const getTeam = asyncHandler(async (req, res) => {
     throw error
   }
 
+  const isAdmin = req.user.role === 'admin'
+
   const isMember = team.members.some((member) => member._id.toString() === userId)
 
-  if (!isMember) {
+  if (!isAdmin && !isMember) {
     const error = new Error('You are not authorized to access this team')
     error.statusCode = 403
     throw error
@@ -65,7 +66,6 @@ export const getTeam = asyncHandler(async (req, res) => {
 })
 
 export const updateTeam = asyncHandler(async (req, res) => {
-  const userId = req.user.id
   const teamId = req.params.id
 
   let team = await Team.findById(teamId)
@@ -76,13 +76,8 @@ export const updateTeam = asyncHandler(async (req, res) => {
     throw error
   }
 
-  if (team.createdBy.toString() !== userId) {
-    const error = new Error('Only the team owner can update team')
-    error.statusCode = 403
-    throw error
-  }
-
   const { name, description, status } = req.body
+
   if (name) team.name = name.trim()
   if (description !== undefined) team.description = description
   if (status) team.status = status
@@ -98,7 +93,6 @@ export const updateTeam = asyncHandler(async (req, res) => {
 })
 
 export const deleteTeam = asyncHandler(async (req, res) => {
-  const userId = req.user.id
   const teamId = req.params.id
 
   const team = await Team.findById(teamId)
@@ -106,12 +100,6 @@ export const deleteTeam = asyncHandler(async (req, res) => {
   if (!team) {
     const error = new Error('Team not found')
     error.statusCode = 404
-    throw error
-  }
-
-  if (team.createdBy.toString() !== userId) {
-    const error = new Error('Only the team owner can delete team')
-    error.statusCode = 403
     throw error
   }
 
@@ -121,11 +109,15 @@ export const deleteTeam = asyncHandler(async (req, res) => {
 })
 
 export const addMember = asyncHandler(async (req, res) => {
-  const userId = req.user.id
   const teamId = req.params.id
   const { memberId } = req.body
+  if (!memberId) {
+    const error = new Error('Member ID is required')
+    error.statusCode = 400
+    throw error
+  }
 
-  const team = await Team.findById(teamId)
+  let team = await Team.findById(teamId)
 
   if (!team) {
     const error = new Error('Team not found')
@@ -133,14 +125,9 @@ export const addMember = asyncHandler(async (req, res) => {
     throw error
   }
 
-  if (team.createdBy.toString() !== userId) {
-    const error = new Error('Only the team owner can add members')
-    error.statusCode = 403
-    throw error
-  }
-
-  const exists = team.members.some((member) => member.toString() === memberId)
-
+  const exists = team.members.some(
+    (member) => member.toString() === memberId
+  )
   if (exists) {
     const error = new Error('This user is already a team member')
     error.statusCode = 400
@@ -160,11 +147,10 @@ export const addMember = asyncHandler(async (req, res) => {
 })
 
 export const removeMember = asyncHandler(async (req, res) => {
-  const userId = req.user.id
   const teamId = req.params.id
   const memberId = req.params.memberId
 
-  const team = await Team.findById(teamId)
+  let team = await Team.findById(teamId)
 
   if (!team) {
     const error = new Error('Team not found')
@@ -172,9 +158,13 @@ export const removeMember = asyncHandler(async (req, res) => {
     throw error
   }
 
-  if (team.createdBy.toString() !== userId) {
-    const error = new Error('Only the team owner can remove members')
-    error.statusCode = 403
+  const exists = team.members.some(
+  (member) => member.toString() === memberId
+ )
+
+  if (!exists) {
+    const error = new Error('User is not a team member')
+    error.statusCode = 404
     throw error
   }
 
