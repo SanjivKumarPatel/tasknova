@@ -33,7 +33,7 @@ export const getAllTasks = asyncHandler(async (req, res) => {
 
   const tasks = await Task.find({
     $or: [{ createdBy: userId }, { assignedTo: userId }]
-  }).sort({ createdAt: -1 })
+}).populate('createdBy assignedTo', 'name email').sort({ createdAt: -1 })
 
   res.status(200).json({
     success: true,
@@ -46,7 +46,7 @@ export const getTask = asyncHandler(async (req, res) => {
   const userId = req.user.id
   const taskId = req.params.id
 
-  const task = await Task.findById(taskId)
+  const task = await Task.findById(taskId).populate('createdBy assignedTo', 'name email')
 
   if (!task) {
     const error = new Error('Task not found')
@@ -55,8 +55,8 @@ export const getTask = asyncHandler(async (req, res) => {
   }
 
   if (
-    task.createdBy.toString() !== userId &&
-    task.assignedTo.toString() !== userId
+    task.createdBy?.toString() !== userId &&
+    task.assignedTo?.toString() !== userId
   ) {
     const error = new Error('Not authorized')
     error.statusCode = 403
@@ -78,26 +78,34 @@ export const updateTask = asyncHandler(async (req, res) => {
     throw error
   }
 
-  if (task.createdBy.toString() !== userId) {
+  const isCreator = task.createdBy?.toString() === userId
+  const isAssigned = task.assignedTo?.toString() === userId
+
+  if (!isCreator && !isAssigned) {
     const error = new Error('Not authorized')
     error.statusCode = 403
     throw error
   }
 
   const { title, description, status, deadline, priority, category } = req.body
-  if (title !== undefined) task.title = title
-  if (description !== undefined) task.description = description
+  
+  if (isCreator) {
+    if (title !== undefined) task.title = title
+    if (description !== undefined) task.description = description
+    if (deadline !== undefined) task.deadline = deadline
+    if (priority !== undefined) task.priority = priority
+    if (category !== undefined) task.category = category
+  }
+  
   if (status !== undefined) task.status = status
-  if (deadline !== undefined) task.deadline = deadline
-  if (priority !== undefined) task.priority = priority
-  if (category !== undefined) task.category = category
-
   await task.save()
+
+  const updatedTask = await Task.findById(taskId).populate('createdBy assignedTo', 'name email')
 
   res.status(200).json({
     success: true,
     message: 'Task updated successfully',
-    task
+    task: updatedTask
   })
 })
 

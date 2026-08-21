@@ -10,31 +10,17 @@ export const createNotification = asyncHandler(async (req, res) => {
     throw error
   }
 
-  const notification = await Notification.create({
-    recipient,
-    type,
-    message,
-    taskId
-  })
+  const notification = await Notification.create({recipient,type,message,taskId})
 
-  res.status(201).json({
-    success: true,
-    message: 'Notification created successfully',
-    notification
-  })
+  res.status(201).json({success: true,message: 'Notification created successfully',notification})
 })
 
 export const getAllNotifications = asyncHandler(async (req, res) => {
   const userId = req.user.id
 
-  const notifications = await Notification.find({ recipient: userId }).sort({
-    createdAt: -1
-  })
+  const notifications = await Notification.find({ recipient: userId }).sort({createdAt: -1})
 
-  res.status(200).json({
-    success: true,
-    count: notifications.length,
-    notifications })
+  res.status(200).json({success: true,count: notifications.length,notifications })
 })
 
 export const getNotification = asyncHandler(async (req, res) => {
@@ -81,11 +67,7 @@ export const updateNotification = asyncHandler(async (req, res) => {
 
   await notification.save()
 
-  res.status(200).json({
-    success: true,
-    message: 'Notification updated successfully',
-    notification
-  })
+  res.status(200).json({success: true,message: 'Notification updated successfully',notification})
 })
 
 export const markAsRead = asyncHandler(async (req, res) => {
@@ -111,11 +93,7 @@ export const markAsRead = asyncHandler(async (req, res) => {
 
   await notification.save()
 
-  res.status(200).json({
-    success: true,
-    message: 'Notification marked as read',
-    notification
-  })
+  res.status(200).json({success: true,message: 'Notification marked as read',notification})
 })
 
 export const markAllAsRead = asyncHandler(async (req, res) => {

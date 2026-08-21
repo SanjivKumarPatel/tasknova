@@ -17,10 +17,12 @@ export const createTeam = asyncHandler(async (req, res) => {
     members: [userId]
   })
 
+  const populatedTeam = await Team.findById(team._id).populate('createdBy members', 'name email')
+
   res.status(201).json({
     success: true,
     message: 'Team created successfully',
-    team
+    team: populatedTeam
   })
 })
 
@@ -28,7 +30,7 @@ export const getAllTeams = asyncHandler(async (req, res) => {
   const userId = req.user.id
 
   const teams = await Team.find({ members: userId }).populate(
-    'members',
+    'createdBy members',
     'name email'
   )
 
@@ -43,7 +45,7 @@ export const getTeam = asyncHandler(async (req, res) => {
   const userId = req.user.id
   const teamId = req.params.id
 
-  const team = await Team.findById(teamId).populate('members', 'name email')
+  const team = await Team.findById(teamId).populate('createdBy members', 'name email')
 
   if (!team) {
     const error = new Error('Team not found')
@@ -66,9 +68,8 @@ export const updateTeam = asyncHandler(async (req, res) => {
   const userId = req.user.id
   const teamId = req.params.id
 
-  const { name, description, status } = req.body
-  const team = await Team.findById(teamId)
-
+  let team = await Team.findById(teamId)
+  
   if (!team) {
     const error = new Error('Team not found')
     error.statusCode = 404
@@ -81,11 +82,13 @@ export const updateTeam = asyncHandler(async (req, res) => {
     throw error
   }
 
+  const { name, description, status } = req.body
   if (name) team.name = name.trim()
   if (description !== undefined) team.description = description
   if (status) team.status = status
 
   await team.save()
+  team = await Team.findById(teamId).populate('createdBy members', 'name email')
 
   res.status(200).json({
     success: true,
@@ -146,6 +149,8 @@ export const addMember = asyncHandler(async (req, res) => {
 
   team.members.push(memberId)
   await team.save()
+  
+  team = await Team.findById(teamId).populate('createdBy members', 'name email')
 
   res.status(200).json({
     success: true,
@@ -175,6 +180,8 @@ export const removeMember = asyncHandler(async (req, res) => {
 
   team.members = team.members.filter((member) => member.toString() !== memberId)
   await team.save()
+  
+  team = await Team.findById(teamId).populate('createdBy members', 'name email')
 
   res.status(200).json({
     success: true,

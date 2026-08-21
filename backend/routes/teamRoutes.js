@@ -16,12 +16,13 @@ const teamRouter = express.Router()
 teamRouter.use(protect)
 
 teamRouter.get('/', getAllTeams)
-teamRouter.get('/:id', getTeam)
 
 teamRouter.post('/', adminMiddleware, createTeam)
+teamRouter.get('/:id', getTeam)
+teamRouter.get('/:id/members', getTeam)
 teamRouter.put('/:id', adminMiddleware, updateTeam)
-teamRouter.put('/:id', adminMiddleware, deleteTeam)
-teamRouter.put('/:id/members', adminMiddleware, addMember)
-teamRouter.put('/:id/members/:memberId', adminMiddleware, removeMember)
+teamRouter.post('/:id/members', adminMiddleware, addMember)
+teamRouter.delete('/:id/members/:memberId', adminMiddleware, removeMember)
+teamRouter.delete('/:id', adminMiddleware, deleteTeam)
 
 export default teamRouter

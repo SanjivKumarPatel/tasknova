@@ -16,7 +16,7 @@ taskRouter.use(protect)
 
 taskRouter.post('/', adminMiddleware, createTask)
 taskRouter.delete('/:id', adminMiddleware, deleteTask)
-taskRouter.post('/:id/generate-subtasks', adminMiddleware, generateSubtasks)
+taskRouter.post('/:id/generate-subtasks', generateSubtasks)
 
 taskRouter.get('/', getAllTasks)
 taskRouter.get('/:id', getTask)

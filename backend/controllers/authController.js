@@ -127,7 +127,7 @@ export const forgotPassword = asyncHandler(async (req, res) => {
     await transporter.sendMail({
       from: process.env.EMAIL_FROM,
       to: user.email,
-      Subject: 'Password Reset OTP',
+      subject: 'Password Reset OTP',
       html: emailContent
     })
 
@@ -212,5 +212,69 @@ export const getAllUsers = asyncHandler(async (req, res) => {
     success: true,
     count: users.length,
     users
+  })
+})
+
+//update profile
+export const updateProfile = asyncHandler(async (req, res) => {
+  const userId = req.user.id
+  const { name, email } = req.body
+
+  if (!name || !email) {
+    const error = new Error('Name and email are required')
+    error.statusCode = 400
+    throw error
+  }
+
+  const existingUser = await User.findOne({
+    email: email.toLowerCase().trim(),
+    _id: { $ne: userId }
+  })
+
+  if (existingUser) {
+    const error = new Error('Email already in use')
+    error.statusCode = 409
+    throw error
+  }
+
+  const user = await User.findByIdAndUpdate(
+    userId,
+    {
+      name: name.trim(),
+      email: email.toLowerCase().trim()
+    },
+    { new: true, runValidators: true }
+  )
+
+  if (!user) {
+    const error = new Error('User not found')
+    error.statusCode = 404
+    throw error
+  }
+
+  res.status(200).json({
+    success: true,
+    message: 'Profile updated successfully',
+    user
+  })
+})
+
+//delete profile
+export const deleteProfile = asyncHandler(async (req, res) => {
+  const userId = req.user.id
+
+  const user = await User.findById(userId)
+
+  if (!user) {
+    const error = new Error('User not found')
+    error.statusCode = 404
+    throw error
+  }
+
+  await user.deleteOne()
+
+  res.status(200).json({
+    success: true,
+    message: 'Profile deleted successfully'
   })
 })
