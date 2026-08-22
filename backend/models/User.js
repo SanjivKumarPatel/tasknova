@@ -33,13 +33,7 @@ const userSchema = new mongoose.Schema(
       enum: ['admin', 'member'],
       default: 'member',
     },
-
-    status: {
-      type: String,
-      enum: ['active', 'inactive', 'blocked'],
-      default: 'active',
-    },
-
+    
     avatar: { type: String, default: '' },
 
     lastLogin: { type: Date, default: null },

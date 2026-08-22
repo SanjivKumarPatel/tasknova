@@ -19,7 +19,6 @@ teamRouter.get('/', getAllTeams)
 
 teamRouter.post('/', adminMiddleware, createTeam)
 teamRouter.get('/:id', getTeam)
-teamRouter.get('/:id/members', getTeam)
 teamRouter.put('/:id', adminMiddleware, updateTeam)
 teamRouter.post('/:id/members', adminMiddleware, addMember)
 teamRouter.delete('/:id/members/:memberId', adminMiddleware, removeMember)

@@ -11,7 +11,7 @@ const notificationSchema = new mongoose.Schema(
 
     type: {
       type: String,
-      enum: ['taskAssignment', 'deadline', 'completion'],
+      enum: ['taskAssignment', 'completion'],
       required: true
     },
 
@@ -27,7 +27,8 @@ const notificationSchema = new mongoose.Schema(
       trim: true
     },
 
-    isRead: { type: Boolean, default: false }
+    isRead: { type: Boolean, default: false },
+    readAt: { type: Date, default: null }
   },
   { timestamps: true }
 )

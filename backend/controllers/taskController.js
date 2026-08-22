@@ -1,5 +1,6 @@
 import asyncHandler from '../middleware/asyncHandler.js'
 import Task from '../models/Task.js'
+import Notification from '../models/Notification.js'
 
 export const createTask = asyncHandler(async (req, res) => {
   const userId = req.user.id
@@ -27,6 +28,13 @@ export const createTask = asyncHandler(async (req, res) => {
     category,
     createdBy: userId,
     assignedTo
+  })
+
+  await Notification.create({
+    recipient: assignedTo,
+    type: 'taskAssignment',
+    taskId: task._id,
+    message: `You have been assigned a new task: "${task.title}"`
   })
 
   const populatedTask = await Task.findById(task._id).populate(
@@ -90,6 +98,8 @@ export const updateTask = asyncHandler(async (req, res) => {
     throw error
   }
 
+  const oldStatus = task.status
+
   const isAdmin = req.user.role === 'admin'
   const isAssigned = task.assignedTo?.toString() === userId
 
@@ -121,6 +131,15 @@ export const updateTask = asyncHandler(async (req, res) => {
   }
 
   await task.save()
+
+  if (oldStatus !== 'completed' && task.status === 'completed') {
+  await Notification.create({
+    recipient: task.createdBy,
+    type: 'completion',
+    taskId: task._id,
+    message: `Your task "${task.title}" has been completed`
+  })
+}
 
   const updatedTask = await Task.findById(taskId).populate(
     'createdBy assignedTo',

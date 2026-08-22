@@ -1,4 +1,4 @@
-import Groq from "groq-sdk";
+import Groq from 'groq-sdk'
 import dotenv from 'dotenv'
 dotenv.config()
 
@@ -14,7 +14,7 @@ export const aiResponse = async(prompt) => {
         }
         
         const res = await groq.chat.completions.create({
-            model : 'llama-3.1-8b-instant',
+            model : 'openai/gpt-oss-20b',
             messages : [{role: 'user', content : prompt}]
         })
 
@@ -27,3 +27,4 @@ export const aiResponse = async(prompt) => {
         throw error
     }
 }
+
