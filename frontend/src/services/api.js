@@ -7,12 +7,15 @@ const apiInstance = axios.create({
   }
 })
 
-/* Request Interceptor */
+// Add JWT automatically
 apiInstance.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token')
+    const token =
+  localStorage.getItem('token') ||
+  sessionStorage.getItem('token')
+
     if (token) {
-      config.headers = { ...config.headers, Authorization: `Bearer ${token}` }
+      config.headers.Authorization = `Bearer ${token}`
     }
 
     return config
@@ -20,7 +23,6 @@ apiInstance.interceptors.request.use(
   (error) => Promise.reject(error)
 )
 
-/*Wrapper Object */
 const api = {
   get: (url, config) => apiInstance.get(url, config),
   post: (url, data, config) => apiInstance.post(url, data, config),
@@ -32,27 +34,70 @@ export const authApi = {
   registerUser: (name, email, password, role) =>
     api.post('/auth/register', { name, email, password, role }),
 
-  login: (email, password, rememberMe) => api.post('/auth/login', { email, password, rememberMe }),
-  
-  getProfile: () => api.get('/auth/profile'),
+  login: (email, password, rememberMe) =>
+    api.post('/auth/login', { email, password, rememberMe }),
 
-  forgotPassword: (email) => api.post('/auth/forgot-password', { email }),
+  getProfile: () =>
+    api.get('/auth/profile'),
 
-  verifyOtp: (email, otp) => api.post('/auth/verify-otp', { email, otp }),
+  updateProfile: (name, email) =>
+    api.put('/auth/profile', { name, email }),
+
+  forgotPassword: (email) =>
+    api.post('/auth/forgot-password', { email }),
+
+  verifyOtp: (email, otp) =>
+    api.post('/auth/verify-otp', { email, otp }),
 
   resetPassword: (email, password, confirmPassword) =>
-    api.post('/auth/reset-password', { email, password, confirmPassword })
+    api.post('/auth/reset-password', {
+      email,
+      password,
+      confirmPassword
+    }),
+
+  getUsers: () =>
+    api.get('/auth/users'),
+
+  deleteProfile: (password) =>
+    api.delete('/auth/profile', {
+      data: { password }
+    })
 }
 
 export const taskApi = {
-  createTask: (title, description, deadline, priority, category) =>
-    api.post('/tasks', { title, description, deadline, priority, category }),
+  createTask: (
+    title,
+    description,
+    deadline,
+    priority,
+    category,
+    assignedTo
+  ) =>
+    api.post('/tasks', {
+      title,
+      description,
+      deadline,
+      priority,
+      category,
+      assignedTo
+    }),
 
-  getAllTasks: () => api.get('/tasks'),
+  getAllTasks: () =>
+    api.get('/tasks'),
 
-  getTask: (taskId) => api.get(`/tasks/${taskId}`),
+  getTask: (taskId) =>
+    api.get(`/tasks/${taskId}`),
 
-  updateTask: (taskId, title, description, deadline, priority, category, status) =>
+  updateTask: (
+    taskId,
+    title,
+    description,
+    deadline,
+    priority,
+    category,
+    status
+  ) =>
     api.put(`/tasks/${taskId}`, {
       title,
       description,
@@ -62,19 +107,35 @@ export const taskApi = {
       status
     }),
 
-  deleteTask: (taskId) => api.delete(`/tasks/${taskId}`)
+  deleteTask: (taskId) =>
+    api.delete(`/tasks/${taskId}`),
+
+  generateSubtasks: (taskId, title, description) =>
+    api.post(`/tasks/${taskId}/generate-subtasks`, {
+      title,
+      description
+    })
 }
 
 export const teamApi = {
-  createTeam: (name, description) => api.post('/teams', { name, description }),
+  createTeam: (name, description) =>
+    api.post('/teams', { name, description }),
 
-  getAllTeams: () => api.get('/teams'),
-  getTeam: (teamId) => api.get(`/teams/${teamId}`),
+  getAllTeams: () =>
+    api.get('/teams'),
+
+  getTeam: (teamId) =>
+    api.get(`/teams/${teamId}`),
 
   updateTeam: (teamId, name, description, status) =>
-    api.put(`/teams/${teamId}`, { name, description, status }),
+    api.put(`/teams/${teamId}`, {
+      name,
+      description,
+      status
+    }),
 
-  deleteTeam: (teamId) => api.delete(`/teams/${teamId}`),
+  deleteTeam: (teamId) =>
+    api.delete(`/teams/${teamId}`),
 
   addMember: (teamId, memberId) =>
     api.post(`/teams/${teamId}/members`, { memberId }),
@@ -84,7 +145,8 @@ export const teamApi = {
 }
 
 export const notificationApi = {
-  getAllNotification: () => api.get('/notifications'),
+  getAllNotification: () =>
+    api.get('/notifications'),
 
   getNotification: (notificationId) =>
     api.get(`/notifications/${notificationId}`),
@@ -92,7 +154,8 @@ export const notificationApi = {
   markAsRead: (notificationId) =>
     api.put(`/notifications/${notificationId}/read`),
 
-  markAllAsRead: () => api.put(`/notifications/mark-all-read`),
+  markAllAsRead: () =>
+    api.put('/notifications/mark-all-read'),
 
   deleteNotification: (notificationId) =>
     api.delete(`/notifications/${notificationId}`)
