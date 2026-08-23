@@ -36,7 +36,7 @@ function Login() {
     try {
       const res = await authApi.login(formData.email, formData.password, formData.remember)
 
-      login(res.data.user, res.data.token, res.data.rememberToken || null)
+      login(res.data.user, res.data.token, res.data.rememberToken)
       navigate('/dashboard')
     } catch (err) {
       setError(err.response?.data?.message || 'Login failed. Please try again.')
