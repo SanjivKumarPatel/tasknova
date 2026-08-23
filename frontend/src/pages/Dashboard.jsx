@@ -1,108 +1,132 @@
 import { useEffect, useState, useContext } from 'react'
 import { taskApi } from '../services/api'
-import dashboardBg from '../assets/dashboard-bg.jpg'
 import Loader from '../components/Loader'
 import { AuthContext } from '../context/AuthContext'
 
 function Dashboard() {
-  const { user } = useContext(AuthContext) || {}
+  const { user } = useContext(AuthContext)
+
   const [tasks, setTasks] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-
-  useEffect(() => {
-    fetchTasks()
-  }, [])
 
   const fetchTasks = async () => {
     try {
       setError('')
       setLoading(true)
+
       const res = await taskApi.getAllTasks()
       setTasks(res.data.tasks || [])
     } catch (err) {
       console.error('Failed to load tasks:', err)
-      setError('Failed to load tasks. Please try again.')
+
+      const message =
+        err.response?.data?.message ||
+        'Failed to load tasks. Please try again.'
+
+      setError(message)
     } finally {
       setLoading(false)
     }
   }
+  
+  useEffect(() => {
+    fetchTasks()
+  }, [])
 
-  //Stats
+  // Stats
   const total = tasks.length
-  const completed = tasks.filter((t) => t.status === 'completed').length
-  const pending = tasks.filter((t) => t.status !== 'completed').length
+
+  const completed = tasks.filter(
+    (task) => task.status === 'completed'
+  ).length
+
+  const inProgress = tasks.filter(
+    (task) => task.status === 'inProgress'
+  ).length
+
+  const pending = tasks.filter(
+    (task) => task.status === 'pending'
+  ).length
 
   return (
-    <div className='w-full min-h-screen bg-slate-900 text-white'>
-      {/* Hero */}
-      <div
-        className='h-[340px] bg-cover bg-center flex items-center px-10 relative'
-        style={{ backgroundImage: `url(${dashboardBg})` }}
-      >
-        <div className='absolute inset-0 bg-black/60'></div>
-
-        <div className='relative z-10'>
-          <h1 className='text-4xl font-bold'>
+    <div className='min-h-full w-full bg-gray-100 text-gray-900 px-6 py-8 md:px-10'>
+      
+      {/* Main */}
+      
+        <div className='mb-8 px-6 text-center py-8 bg-gray-100 border border-gray-400 rounded-2xl'>
+          <h1 className='text-3xl font-bold'>
             Welcome back,
-            <span className='text-indigo-400 ml-2'>{user?.name || 'User'}</span>
+            <span className='ml-2 text-indigo-700'>
+              {user?.name || 'User'} 🚀
+            </span>
           </h1>
 
-          <p className='text-gray-300 mt-3 max-w-xl'>
-            Organize your tasks, collaborate with your team, and achieve more
-            every day.
+          <p className='mt-4'>
+            Organize your tasks, collaborate with your team, and achieve more every day.
           </p>
         </div>
-      </div>
-
-      {/* Main */}
-      <div className='px-10 -mt-20 pb-10'>
+        {/* Error */}
         {error && (
-          <div className='bg-red-100 text-red-700 px-4 py-2 rounded mb-6'>
+          <div className='mb-4 rounded-xl border border-red-400/30 bg-red-500/10 px-4 py-3 text-sm text-red-600'>
             {error}
           </div>
         )}
 
         {/* Stats */}
-        <div className='grid grid-cols-1 md:grid-cols-3 gap-6 mb-8'>
-          <div className='backdrop-blur-lg bg-white/10 border border-white/20 rounded-xl p-6 shadow-lg'>
-            <p className='text-gray-300 text-sm'>Total tasks</p>
-            <h2 className='text-2xl font-bold mt-2'>{total}</h2>
-          </div>
+        <div className='grid grid-cols-1 md:grid-cols-2 gap-8 mb-8'>
 
-          <div className='backdrop-blur-lg bg-white/10 border border-white/20 rounded-xl p-6 shadow-lg'>
-            <p className='text-gray-300 text-sm'>Completed</p>
-            <h2 className='text-2xl font-bold mt-2 text-green-400'>
-              {completed}
-            </h2>
-          </div>
+          {/* Total */}
+        <div className="relative rounded-xl bg-gray-400 p-5 text-center border border-gray-400 transition duration-300 hover:-translate-y-2 hover:bg-gray-600 hover:shadow-xl">
+          <p className="text-2xl font-semibold text-blue-900">Total Tasks</p>
+            <h2 className="mt-2 text-3xl font-bold text-white">{total}</h2>
+        </div>
 
-          <div className='backdrop-blur-lg bg-white/10 border border-white/20 rounded-xl p-6 shadow-lg'>
-            <p className='text-gray-300 text-sm'>Pending</p>
-            <h2 className='text-2xl font-bold mt-2 text-yellow-400'>
-              {pending}
-            </h2>
-          </div>
+          {/* Completed */}
+        <div className='relative rounded-xl bg-green-400 p-5 text-center border border-gray-400 transition duration-300 hover:-translate-y-2 hover:bg-green-600 hover:shadow-xl'>
+          <p className='text-xl font-semibold text-blue-900'>Completed</p>
+            <h2 className='mt-2 text-3xl font-bold text-white'>{completed}</h2>
+        </div>
+
+          {/* In Progress */}
+        <div className='relative rounded-xl bg-blue-400 p-5 text-center border border-gray-400 transition duration-300 hover:-translate-y-2 hover:bg-blue-600 hover:shadow-xl'>
+          <p className='text-xl font-semibold text-blue-900'>In Progress</p>
+            <h2 className='mt-2 text-3xl font-bold text-white'>{inProgress}</h2>
+        </div>
+
+
+          {/* Pending */}
+        <div className='relative rounded-xl bg-yellow-400 p-5 text-center border border-gray-400 transition duration-300 hover:-translate-y-2 hover:bg-yellow-600 hover:shadow-xl'>
+          <p className='text-xl font-semibold text-blue-900'>Pending</p>
+            <h2 className='mt-2 text-3xl font-bold text-white'>{pending}</h2>
+        </div>
         </div>
 
         {/* Task List */}
-        <div className='backdrop-blur-lg bg-white/10 border border-white/20 rounded-xl p-6 shadow-lg'>
-          <h2 className='text-lg font-semibold mb-4'>Recent Tasks</h2>
+        <div className='relative rounded-xl bg-gray-50 p-5 border border-gray-400'>
+          <h2 className='text-lg font-semibold mb-4'>
+            Recent Tasks
+          </h2>
 
           {loading ? (
             <Loader />
           ) : tasks.length === 0 ? (
-            <p className='text-gray-400'>No tasks found</p>
+            <p className='text-gray-700'>
+              No tasks found
+            </p>
           ) : (
             <div className='space-y-4'>
               {tasks.slice(0, 4).map((task) => (
                 <div
                   key={task._id}
-                  className='flex justify-between items-center border-b border-white/10 pb-3'
+                  className='flex justify-between items-center border-b border-gray-200 pb-3'
                 >
                   <div>
-                    <p className='font-medium'>{task.title}</p>
-                    <p className='text-sm text-gray-400'>
+                    <p className='font-medium'>
+                      {task.title}
+                    </p>
+
+                    <p className='text-sm text-gray-700'>
                       {task.description || 'No description'}
                     </p>
                   </div>
@@ -111,10 +135,14 @@ function Dashboard() {
                     className={`text-sm font-medium ${
                       task.status === 'completed'
                         ? 'text-green-400'
+                        : task.status === 'inProgress'
+                        ? 'text-blue-500'
                         : 'text-yellow-400'
                     }`}
                   >
-                    {task.status || 'pending'}
+                    {task.status === 'inProgress'
+                        ? 'In Progress'
+                        : task.status || 'Pending'}
                   </span>
                 </div>
               ))}
@@ -122,7 +150,6 @@ function Dashboard() {
           )}
         </div>
       </div>
-    </div>
   )
 }
 
