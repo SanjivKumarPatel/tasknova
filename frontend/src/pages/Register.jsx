@@ -1,10 +1,9 @@
-import { useContext, useState } from 'react'
+import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { AuthContext } from '../context/AuthContext'
+import { toast } from 'react-toastify'
 import { authApi } from '../services/api'
 
 function Register() {
-  const { register } = useContext(AuthContext)
   const navigate = useNavigate()
 
   const [formData, setFormData] = useState({
@@ -39,16 +38,16 @@ function Register() {
     try {
       setLoading(true)
 
-      const res = await authApi.registerUser(
-        formData.name,
-        formData.email,
-        formData.password,
-        formData.role
-      )
+    await authApi.registerUser(
+      formData.name,
+      formData.email,
+      formData.password,
+      formData.role
+    )
 
-      register(res.data.user, res.data.token)
-
-      navigate('/dashboard')
+    toast.success('Account created successfully. Please login.')
+    navigate('/login')
+    
     } catch (err) {
       setError(
         err.response?.data?.message || 'Registration failed. Please try again.'
