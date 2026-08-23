@@ -1,62 +1,98 @@
-import { createContext, useEffect, useState } from 'react'
+import { createContext, useState } from 'react'
 
 export const AuthContext = createContext()
 
 export const AuthProvider = ({ children }) => {
-  const [token, setToken] = useState(null)
-  const [user, setUser] = useState(null)
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
-  const [loading, setLoading] = useState(true)
+  const [token, setToken] = useState(() => {
+    return (
+      localStorage.getItem('token') ||
+      sessionStorage.getItem('token')
+    )
+  })
 
-  useEffect(() => {
-    const storedToken = localStorage.getItem('token')
-    const storedUser = localStorage.getItem('user')
+  const [user, setUser] = useState(() => {
+    const storedUser =
+      localStorage.getItem('user') ||
+      sessionStorage.getItem('user')
 
-    if (storedToken && storedUser) {
-      const userData = JSON.parse(storedUser)
-      setToken(storedToken)
-      setUser(userData)
-      setIsLoggedIn(true)
-      setLoading(false)
-    } else {
-    setLoading(false)
+    if (!storedUser) {
+      return null
     }
-  }, [])
+
+    try {
+      return JSON.parse(storedUser)
+    } catch (error) {
+      console.error('Failed to restore user session:', error)
+      localStorage.removeItem('user')
+      sessionStorage.removeItem('user')
+      return null
+    }
+  })
+
+  const [isLoggedIn, setIsLoggedIn] = useState(() => {
+    return !!(
+      localStorage.getItem('token') ||
+      sessionStorage.getItem('token')
+    )
+  })
+
+  const loading = false
 
   const register = (userData, userToken) => {
     setUser(userData)
     setToken(userToken)
     setIsLoggedIn(true)
+
     localStorage.setItem('token', userToken)
     localStorage.setItem('user', JSON.stringify(userData))
   }
 
-  const login = (userData, userToken, rememberToken = null) => {
-    setUser(userData)
-    setToken(userToken)
-    setIsLoggedIn(true)
+const login = (userData, userToken, rememberMe = false) => {
+  setUser(userData)
+  setToken(userToken)
+  setIsLoggedIn(true)
+
+  // Clear any previous session
+  localStorage.removeItem('token')
+  localStorage.removeItem('user')
+  sessionStorage.removeItem('token')
+  sessionStorage.removeItem('user')
+
+  if (rememberMe) {
+    // Remember Me ON → persist after browser closes
     localStorage.setItem('token', userToken)
     localStorage.setItem('user', JSON.stringify(userData))
-
-    if (rememberToken) {
-      localStorage.setItem('rememberToken', rememberToken)
-      localStorage.setItem('rememberEnabled', 'true')
-    }
+  } else {
+    // Remember Me OFF → only current browser session
+    sessionStorage.setItem('token', userToken)
+    sessionStorage.setItem('user', JSON.stringify(userData))
   }
+}
 
-  const updateUser = (updateUserData) => {
-    setUser(updateUserData)
+const updateUser = (updateUserData) => {
+  setUser(updateUserData)
+
+  if (localStorage.getItem('token')) {
     localStorage.setItem('user', JSON.stringify(updateUserData))
   }
+
+  if (sessionStorage.getItem('token')) {
+    sessionStorage.setItem('user', JSON.stringify(updateUserData))
+  }
+}
 
   const logout = () => {
     setUser(null)
     setToken(null)
     setIsLoggedIn(false)
+
     localStorage.removeItem('token')
     localStorage.removeItem('user')
     localStorage.removeItem('rememberToken')
     localStorage.removeItem('rememberEnabled')
+
+    sessionStorage.removeItem('token')
+    sessionStorage.removeItem('user')
   }
 
   return (
@@ -76,4 +112,3 @@ export const AuthProvider = ({ children }) => {
     </AuthContext.Provider>
   )
 }
-
