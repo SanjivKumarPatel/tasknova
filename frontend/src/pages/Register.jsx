@@ -2,7 +2,6 @@ import { useContext, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { AuthContext } from '../context/AuthContext'
 import { authApi } from '../services/api'
-import registerBg from '../assets/login-bg.jpg'
 
 function Register() {
   const { register } = useContext(AuthContext)
@@ -33,7 +32,7 @@ function Register() {
     setError('')
 
     if (formData.password !== formData.confirmPassword) {
-      setError('Password do not match')
+      setError('Passwords do not match')
       return
     }
 
@@ -60,63 +59,45 @@ function Register() {
   }
 
   return (
-    <div
-      className='min-h-screen flex items-center justify-center px-4 bg-cover bg-center bg-no-repeat relative'
-      style={{ backgroundImage: `url(${registerBg})` }}
-    >
-      {/* overlay */}
-      <div className='absolute inset-0 bg-black/45'></div>
+      <div className="min-h-screen flex items-center justify-center p-0 bg-linear-to-t from-gray-50 via-cyan-300 to-blue-500">
 
       {/* card */}
-      <div className='relative z-10 w-full max-w-md rounded-[28px] border border-blue-400/30 bg-[#04112ad9] backdrop-blur-xl shadow-[0_0_35px_rgba(59,130,246,0.25)] px-8 py-10'>
-        {/* logo */}
-        <div className='text-center mb-6'>
-          <div className='flex justify-center mb-3'>
-            <div className='w-12 h-12 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-300 text-2xl'>
-              ✦
-            </div>
-          </div>
-
-          <h1 className='text-5xl font-bold tracking-tight'>
-            <span className='text-white'>Task</span>
-            <span className='text-blue-500'>Nova</span>
+      <div className="w-full max-w-md rounded-2xl border border-gray-200 bg-white p-5 shadow-xl">
+        
+        <div className='text-center mb-2'>        
+          <h1 className='text-4xl font-bold tracking-tight'>
+            <span className='text-blue-400'>Task</span>
+            <span className='text-blue-900'>Nova</span>
           </h1>
 
-          <p className='mt-2 text-[11px] tracking-[4px] text-gray-400 uppercase'>
-            Organize. Collaborate. Achieve.
+          <p className='mt-2 text-[11px] font-semibold tracking-[4px] uppercase'>
+            Organize※ Collaborate※ Achieve
           </p>
         </div>
 
-        {/* divider */}
-        <div className='flex items-center gap-3 mb-7'>
-          <div className='h-px flex-1 bg-blue-400/20'></div>
-          <div className='w-2 h-2 rounded-full bg-blue-500'></div>
-          <div className='h-px flex-1 bg-blue-400/20'></div>
-        </div>
-
         {/* heading */}
-        <div className='text-center mb-6'>
-          <h2 className='text-3xl font-semibold text-white'>
+        <div className='text-center mb-2'>
+          <h2 className='text-2xl font-semibold'>
             Create Account ✨
           </h2>
 
-          <p className='text-gray-300 mt-2 text-sm'>
+          <p className='text-gray-600 mr-6 text-sm'>
             Start your productivity journey
           </p>
         </div>
 
         {/* error */}
         {error && (
-          <div className='mb-4 rounded-xl border border-red-400/30 bg-red-500/10 px-4 py-3 text-sm text-red-200'>
+          <div className='mb-4 rounded-xl border border-red-400/30 bg-red-500/10 px-4 py-3 text-sm text-red-600'>
             {error}
           </div>
         )}
 
         {/* form */}
-        <form onSubmit={handleSubmit} className='space-y-5'>
+        <form onSubmit={handleSubmit} className='space-y-3'>
           {/* name */}
           <div>
-            <label className='block text-sm text-gray-200 mb-2'>
+            <label className='block text-sm font-medium mb-1'>
               Full name
             </label>
             <input
@@ -126,13 +107,13 @@ function Register() {
               value={formData.name}
               onChange={handleChange}
               placeholder='Enter your full name'
-              className='w-full rounded-xl border border-blue-400/20 bg-white/5 px-4 py-3 text-white placeholder-gray-400 outline-none focus:border-blue-400 focus:ring-blue-500/30'
+              className='w-full rounded-xl border border-gray-700 bg-gray-100 px-4 py-2 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-500/30'
             />
           </div>
 
           {/* email */}
           <div>
-            <label className='block text-sm text-gray-200 mb-2'>Email</label>
+            <label className='block text-sm font-medium mb-1'>Email</label>
 
             <input
               type='email'
@@ -141,27 +122,27 @@ function Register() {
               value={formData.email}
               onChange={handleChange}
               placeholder='Enter your email'
-              className='w-full rounded-xl border border-blue-400/20 bg-white/5 px-4 py-3 text-white placeholder-gray-400 outline-none focus:border-blue-400 focus:ring-blue-500/30'
+              className='w-full rounded-xl border border-gray-700 bg-gray-100 px-4 py-2 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-500/30'
             />
           </div>
 
           {/* role */}
           <div>
-            <label className='block text-sm text-gray-200 mb-2'>Register as</label>
+            <label className='block text-sm font-medium mb-1'>Register as</label>
             <select
               name='role'
               value={formData.role}
               onChange={handleChange}
-              className='w-full rounded-xl border border-blue-400/20 bg-white/5 px-4 py-3 text-white outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-500/30'
+              className='w-full rounded-xl border border-gray-700 bg-gray-100 px-4 py-2 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-500/30'
             >
-              <option value='member' className='bg-slate-900'>Member</option>
-              <option value='admin' className='bg-slate-900'>Admin</option>
+              <option value='member' className='bg-gray-300'>Member</option>
+              <option value='admin' className='bg-gray-300'>Admin</option>
             </select>
           </div>
 
           {/* password */}
           <div>
-            <label className='block text-sm text-gray-200 mb-2'>Password</label>
+            <label className='block text-sm font-medium mb-1'>Password</label>
 
             <input
               type='password'
@@ -170,13 +151,13 @@ function Register() {
               value={formData.password}
               onChange={handleChange}
               placeholder='Create password'
-              className='w-full rounded-xl border border-blue-400/20 bg-white/5 px-4 py-3 text-white placeholder-gray-400 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-500/30'
+              className='w-full rounded-xl border border-gray-700 bg-gray-100 px-4 py-2 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-500/30'
             />
           </div>
 
           {/* confirm password */}
           <div>
-            <label className='block text-sm text-gray-200 mb-2'>
+            <label className='block text-sm font-medium mb-1'>
               Confirm password
             </label>
 
@@ -187,7 +168,7 @@ function Register() {
               value={formData.confirmPassword}
               onChange={handleChange}
               placeholder='Confirm password'
-              className='w-full rounded-xl border border-blue-400/20 bg-white/5 px-4 py-3 text-white placeholder-gray-400 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-500/30'
+              className='w-full rounded-xl border border-gray-700 bg-gray-100 px-4 py-2 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-500/30'
             />
           </div>
 
@@ -195,24 +176,17 @@ function Register() {
           <button
             type='submit'
             disabled={loading}
-            className='w-full rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 py-3 text-white font-semibold hover:opacity-95 transition disabled:opacity-60'
+            className='w-full rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 mt-5 py-2 text-white font-semibold hover:opacity-75 transition disabled:opacity-60'
           >
             {loading ? 'Creating Account...' : 'Create Account ➡️'}
           </button>
 
-          {/* footer divider */}
-          <div className='mt-7 flex items-center gap-3'>
-            <div className='h-px flex-1 bg-blue-400/20'></div>
-            <div className='w-2 h-2 rounded-full bg-blue-500'></div>
-            <div className='h-px flex-1 bg-blue-400/20'></div>
-          </div>
-
           {/* footer */}
-          <p className='text-center text-sm text-gray-300 mt-6'>
+          <p className='text-center text-sm text-gray-500 mt-3'>
             Already have an account?{' '}
             <Link
               to='/login'
-              className='text-blue-400 hover:text-blue-300 font-medium'
+              className='text-blue-500 hover:text-blue-300 font-medium'
             >
               Sign in
             </Link>
