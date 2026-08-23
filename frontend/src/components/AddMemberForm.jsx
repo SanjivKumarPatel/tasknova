@@ -3,7 +3,7 @@ import { authApi, teamApi } from '../services/api'
 import { toast } from 'react-toastify'
 import { X } from 'lucide-react'
 
-function AddMemberForm({ teamId, onClose, onMemberAdded }) {
+function AddMemberForm({ teamId, existingMembers, onClose, onMemberAdded }) {
   const [members, setMembers] = useState([])
   const [selectedMemberId, setSelectedMemberId] = useState('')
   const [loading, setLoading] = useState(false)
@@ -14,14 +14,30 @@ function AddMemberForm({ teamId, onClose, onMemberAdded }) {
     const fetchMembers = async () => {
       try {
         setLoadingMembers(true)
+
         const res = await authApi.getUsers()
-        setMembers(res.data.users || [])
-        if (res.data.users.length > 0) {
-          setSelectedMemberId(res.data.users[0]._id)
-        }
+
+        const users = res.data.users || []
+
+        const availableMembers = users.filter(
+          (user) =>
+            !existingMembers.some(
+              (member) => String(member._id) === String(user._id)
+            )
+      )
+
+    setMembers(availableMembers)
+
+    if (availableMembers.length > 0) {
+      setSelectedMemberId(availableMembers[0]._id)
+    }
       } catch (err) {
         console.error('Failed to fetch members:', err)
-        toast.error('Failed to load members')
+
+        const message =
+          err.response?.data?.message || 'Failed to load members'
+
+        setError(message)
       } finally {
         setLoadingMembers(false)
       }
@@ -47,8 +63,10 @@ function AddMemberForm({ teamId, onClose, onMemberAdded }) {
       onMemberAdded(res.data.team)
       onClose()
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to add member')
-      toast.error(err.response?.data?.message || 'Failed to add member')
+      const message =
+      err.response?.data?.message || 'Failed to add member'
+
+    setError(message)
     } finally {
       setLoading(false)
     }
@@ -61,6 +79,7 @@ function AddMemberForm({ teamId, onClose, onMemberAdded }) {
         <div className='flex items-center justify-between mb-6'>
           <h2 className='text-2xl font-bold text-white'>Add Team Member</h2>
           <button
+            type='button'
             onClick={onClose}
             className='text-gray-400 hover:text-white transition'
           >
@@ -82,8 +101,14 @@ function AddMemberForm({ teamId, onClose, onMemberAdded }) {
             <label className='block text-sm text-gray-200 mb-2'>
               Select Member *
             </label>
-            {loadingMembers ? (
-              <div className='text-gray-400 text-sm'>Loading members...</div>
+            {loadingMembers ? (             
+              <div className='text-gray-400 text-sm'>
+                Loading members...
+              </div>
+            ) : members.length === 0 ? (
+              <div className='text-gray-400 text-sm'>
+                No members available
+              </div>
             ) : (
               <select
                 value={selectedMemberId}
@@ -94,7 +119,7 @@ function AddMemberForm({ teamId, onClose, onMemberAdded }) {
                   <option
                     key={member._id}
                     value={member._id}
-                    className='bg-slate-900'
+                    className='bg-gray-900'
                   >
                     {member.name} ({member.email})
                   </option>
@@ -114,8 +139,8 @@ function AddMemberForm({ teamId, onClose, onMemberAdded }) {
             </button>
             <button
               type='submit'
-              disabled={loading || loadingMembers}
-              className='flex-1 rounded-xl bg-linear-to-r from-blue-500 to-indigo-600 py-3 text-white font-semibold hover:opacity-95 transition disabled:opacity-60'
+              disabled={loading || loadingMembers || members.length === 0}
+              className='flex-1 rounded-xl bg-linear-to-r from-blue-500 to-indigo-800 py-3 text-white font-semibold hover:opacity-95 transition disabled:opacity-60'
             >
               {loading ? 'Adding...' : 'Add Member'}
             </button>
