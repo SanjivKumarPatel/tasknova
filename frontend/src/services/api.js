@@ -40,8 +40,8 @@ export const authApi = {
   getProfile: () =>
     api.get('/auth/profile'),
 
-  updateProfile: (name, email) =>
-    api.put('/auth/profile', { name, email }),
+  updateProfile: (name, email, password) =>
+    api.put('/auth/profile', { name, email, password }),
 
   forgotPassword: (email) =>
     api.post('/auth/forgot-password', { email }),
@@ -59,10 +59,8 @@ export const authApi = {
   getUsers: () =>
     api.get('/auth/users'),
 
-  deleteProfile: (password) =>
-    api.delete('/auth/profile', {
-      data: { password }
-    })
+  deleteProfile: () =>
+    api.delete('/auth/profile'),
 }
 
 export const taskApi = {
