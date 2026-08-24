@@ -1,10 +1,9 @@
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, Navigate } from 'react-router-dom'
 import { ToastContainer } from 'react-toastify'
 import ForgotPassword from './pages/ForgotPassword'
 import VerifyOtp from './pages/VerifyOtp'
 import ResetPassword from './pages/ResetPassword'
 
-import Home from './pages/Home'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import Dashboard from './pages/Dashboard'
@@ -24,7 +23,6 @@ function App() {
 
       <Routes>
         {/* Public Routes */}
-        <Route path='/' element={<Home />} />
         <Route path='/login' element={<Login />} />
         <Route path='/register' element={<Register />} />
         <Route path='/forgot-password' element={<ForgotPassword />} />
@@ -32,6 +30,8 @@ function App() {
         <Route path='/reset-password' element={<ResetPassword />} />
 
         {/* Protected Routes */}
+        <Route path='/' element={<Navigate to='/dashboard' replace />} />
+        
         <Route
           path='/dashboard'
           element={
