@@ -182,6 +182,12 @@ export const resetPassword = asyncHandler(async (req, res) => {
     throw error
   }
 
+  if (password !== confirmPassword) {
+    const error = new Error('Passwords do not match')
+    error.statusCode = 400
+    throw error
+  }
+
   const user = await User.findOne({ email: email.toLowerCase().trim() })
 
   if (!user) {
@@ -218,7 +224,7 @@ export const getAllUsers = asyncHandler(async (req, res) => {
 //update profile
 export const updateProfile = asyncHandler(async (req, res) => {
   const userId = req.user.id
-  const { name, email } = req.body
+  const { name, email, password } = req.body
 
   if (!name || !email) {
     const error = new Error('Name and email are required')
@@ -237,20 +243,22 @@ export const updateProfile = asyncHandler(async (req, res) => {
     throw error
   }
 
-  const user = await User.findByIdAndUpdate(
-    userId,
-    {
-      name: name.trim(),
-      email: email.toLowerCase().trim()
-    },
-    { new: true, runValidators: true }
-  )
+  const user = await User.findById(userId)
 
   if (!user) {
     const error = new Error('User not found')
     error.statusCode = 404
     throw error
   }
+
+  user.name = name.trim()
+  user.email = email.toLowerCase().trim()
+
+  if (password && password.trim()) {
+    user.password = password
+  }
+
+  await user.save()
 
   res.status(200).json({
     success: true,

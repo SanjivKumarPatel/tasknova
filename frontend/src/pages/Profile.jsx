@@ -20,10 +20,12 @@ function Profile() {
   })
 
   const handleEdit = () => {
+    setError('')
     setIsEditing(true)
   }
 
   const handleCancel = () => {
+    setError('')
     setIsEditing(false)
     setFormData({
       name: user?.name || '',
@@ -47,7 +49,7 @@ function Profile() {
       setError('')
       setLoading(true)
 
-      const res = await authApi.updateUser(
+      const res = await authApi.updateProfile(
         formData.name,
         formData.email,
         formData.password
@@ -68,7 +70,7 @@ function Profile() {
 
     try {
       setLoading(true)
-      await authApi.deleteUser()
+      await authApi.deleteProfile()
       logout()
       navigate('/register')
     } catch (err) {
@@ -81,10 +83,13 @@ function Profile() {
   if (!user) return <Loader />
 
   return (
-    <div className='w-full max-w-4xl mx-auto'>
-      <div className='mb-8'>
-        <h1 className='text-3xl font-bold text-slate-900'>Profile</h1>
-        <p className='mt-2 text-slate-500'>Manage your account information</p>
+    <div className='min-h-full w-full bg-gray-100 text-gray-900 px-6 py-8 md:px-10'>
+      <div className='mb-6 rounded-xl border border-gray-200 bg-gray-300 px-6 py-4'>
+        <h1 className='text-3xl font-bold'>Profile</h1>
+
+        <p className='mt-1 text-sm text-gray-700'>
+          Manage your account information
+        </p>
       </div>
 
       {error && (
@@ -94,59 +99,59 @@ function Profile() {
       )}
 
       {!isEditing ? (
-        <div className='rounded-3xl border border-slate-200 bg-white p-8 shadow-sm'>
-          <div className='flex items-center gap-5 border-b border-slate-200 pb-6'>
-            <div className='flex h-20 w-20 items-center justify-center rounded-full bg-blue-100 text-blue-600'>
-              <User size={36} />
+        <div className='rounded-3xl border border-gray-200 bg-white p-8 shadow-sm'>
+          <div className='flex items-center gap-4 border-b-2 border-gray-300 pb-6'>
+            <div className='flex h-16 w-16 items-center justify-center rounded-full bg-blue-100 text-blue-600'>
+              <User size={30} />
             </div>
             <div>
-              <h2 className='text-2xl font-bold text-slate-800'>{user.name}</h2>
-              <p className='mt-1 text-slate-500'>{user.email}</p>
+              <h2 className='text-xl font-bold text-gray-800'>{user.name}</h2>
+              <p className='mt-1 text-gray-500'>{user.email}</p>
             </div>
           </div>
 
-          <div className='mt-8 space-y-5'>
-            <div className='flex items-start gap-4 rounded-2xl bg-slate-50 p-5'>
+          <div className='mt-6 grid gap-4 md:grid-cols-3'>
+            <div className='flex items-start gap-4 rounded-2xl bg-green-100 p-5'>
               <div className='rounded-xl bg-blue-100 p-3 text-blue-600'>
                 <User size={20} />
               </div>
               <div>
-                <p className='text-sm text-slate-500'>Full Name</p>
-                <h3 className='mt-1 text-lg font-semibold text-slate-800'>
+                <p className='text-sm text-gray-500'>Full Name</p>
+                <h3 className='mt-1 text-lg font-semibold text-gray-800'>
                   {user.name}
                 </h3>
               </div>
             </div>
 
-            <div className='flex items-start gap-4 rounded-2xl bg-slate-50 p-5'>
+            <div className='flex items-start gap-4 rounded-2xl bg-blue-100 p-5'>
               <div className='rounded-xl bg-blue-100 p-3 text-blue-600'>
                 <Mail size={20} />
               </div>
               <div>
-                <p className='text-sm text-slate-500'>Email Address</p>
-                <h3 className='mt-1 text-lg font-semibold text-slate-800'>
+                <p className='text-sm text-gray-500'>Email Address</p>
+                <h3 className='mt-1 text-lg font-semibold text-gray-800'>
                   {user.email}
                 </h3>
               </div>
             </div>
 
-            <div className='flex items-start gap-4 rounded-2xl bg-slate-50 p-5'>
+            <div className='flex items-start gap-4 rounded-2xl bg-blue-100 p-5'>
               <div className='rounded-xl bg-blue-100 p-3 text-blue-600'>
                 <Shield size={20} />
               </div>
               <div>
-                <p className='text-sm text-slate-500'>Role</p>
-                <h3 className='mt-1 text-lg font-semibold capitalize text-slate-800'>
+                <p className='text-sm text-gray-500'>Role</p>
+                <h3 className='mt-1 text-lg font-semibold capitalize text-gray-800'>
                   {user.role || 'member'}
                 </h3>
               </div>
             </div>
           </div>
 
-          <div className='mt-8 flex flex-wrap gap-4'>
+          <div className='mt-6 flex flex-wrap gap-4'>
             <button
               onClick={handleEdit}
-              className='flex items-center gap-2 rounded-2xl bg-blue-600 px-6 py-3 font-medium text-white transition hover:bg-blue-700'
+              className='flex items-center gap-2 rounded-2xl bg-blue-600 px-5 py-2 font-medium text-white transition hover:bg-blue-700'
             >
               <Pencil size={18} />
               Edit Profile
@@ -155,7 +160,7 @@ function Profile() {
             <button
               onClick={handleDelete}
               disabled={loading}
-              className='flex items-center gap-2 rounded-2xl border border-red-200 bg-red-50 px-6 py-3 font-medium text-red-600 transition hover:bg-red-100 disabled:opacity-50'
+              className='flex items-center gap-2 rounded-2xl border border-red-200 bg-red-50 px-5 py-2 font-medium text-red-600 transition hover:bg-red-100 disabled:opacity-50'
             >
               <Trash2 size={18} />
               Delete Account
@@ -163,14 +168,14 @@ function Profile() {
           </div>
         </div>
       ) : (
-        <div className='rounded-3xl border border-slate-200 bg-white p-8 shadow-sm'>
-          <h2 className='mb-6 text-2xl font-bold text-slate-800'>
+        <div className='rounded-3xl border border-gray-200 bg-white p-6 shadow-sm'>
+          <h2 className='mb-6 text-2xl font-bold text-gray-800'>
             Edit Profile
           </h2>
 
           <form onSubmit={handleSave} className='space-y-5'>
             <div>
-              <label className='mb-2 block text-sm font-medium text-slate-700'>
+              <label className='mb-2 block text-sm font-medium text-gray-700'>
                 Full Name
               </label>
               <input
@@ -180,12 +185,12 @@ function Profile() {
                   setFormData({ ...formData, name: e.target.value })
                 }
                 placeholder='Enter full name'
-                className='w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none focus:border-blue-500'
+                className='w-full rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-blue-500'
               />
             </div>
 
             <div>
-              <label className='mb-2 block text-sm font-medium text-slate-700'>
+              <label className='mb-2 block text-sm font-medium text-gray-700'>
                 Email Address
               </label>
               <input
@@ -195,12 +200,12 @@ function Profile() {
                   setFormData({ ...formData, email: e.target.value })
                 }
                 placeholder='Enter email address'
-                className='w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none focus:border-blue-500'
+                className='w-full rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-blue-500'
               />
             </div>
 
             <div>
-              <label className='mb-2 block text-sm font-medium text-slate-700'>
+              <label className='mb-2 block text-sm font-medium text-gray-700'>
                 New Password
               </label>
               <input
@@ -210,7 +215,7 @@ function Profile() {
                   setFormData({ ...formData, password: e.target.value })
                 }
                 placeholder='Leave blank to keep current password'
-                className='w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none focus:border-blue-500'
+                className='w-full rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-blue-500'
               />
             </div>
 
@@ -218,7 +223,7 @@ function Profile() {
               <button
                 type='submit'
                 disabled={loading}
-                className='rounded-2xl bg-blue-600 px-6 py-3 font-medium text-white transition hover:bg-blue-700 disabled:opacity-50'
+                className='rounded-2xl bg-blue-600 px-5 py-2 font-medium text-white transition hover:bg-blue-700 disabled:opacity-50'
               >
                 {loading ? 'Saving...' : 'Save Changes'}
               </button>
@@ -227,7 +232,7 @@ function Profile() {
                 type='button'
                 onClick={handleCancel}
                 disabled={loading}
-                className='rounded-2xl border border-slate-300 px-6 py-3 font-medium text-slate-700 transition hover:bg-slate-100 disabled:opacity-50'
+                className='rounded-2xl border border-gray-300 px-5 py-2 font-medium text-gray-700 transition hover:bg-gray-100 disabled:opacity-50'
               >
                 Cancel
               </button>
