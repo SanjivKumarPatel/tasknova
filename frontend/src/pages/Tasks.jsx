@@ -92,7 +92,8 @@ function Tasks() {
   return (
     <div className='min-h-full w-full bg-gray-100 text-gray-900 px-6 py-8 md:px-10'>
       {/* header */}
-        <div className='mb-8 flex flex-col gap-4 rounded-xl border border-gray-200 bg-gray-300 px-6 py-4 md:flex-row md:items-center md:justify-between'>        <div>
+      <div className='mb-8 flex flex-col gap-4 rounded-xl border border-gray-200 bg-gray-300 px-6 py-4 md:flex-row md:items-center md:justify-between'>
+        <div>
           <div className='flex items-center gap-3'>
             <h1 className='text-3xl font-bold'>
               Tasks
