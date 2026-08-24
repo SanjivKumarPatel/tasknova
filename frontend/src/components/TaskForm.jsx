@@ -26,11 +26,14 @@ function TaskForm({ onClose, onTaskCreated }) {
       try {
         setLoadingMembers(true)
         const res = await authApi.getUsers()
-        setMembers(res.data.users)
-        if (res.data.users.length > 0) {
+        const users = res.data.users || []
+
+        setMembers(users)
+
+        if (users.length > 0) {
           setFormData((prev) => ({
             ...prev,
-            assignedTo: res.data.users[0]._id
+            assignedTo: users[0]._id
           }))
         }
       } catch (err) {
@@ -49,6 +52,7 @@ function TaskForm({ onClose, onTaskCreated }) {
 
   const handleChange = (e) => {
     const { name, value } = e.target
+    setError('')
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
@@ -82,20 +86,19 @@ function TaskForm({ onClose, onTaskCreated }) {
       onClose()
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to create task')
-      toast.error(err.response?.data?.message || 'Failed to create task')
     } finally {
       setLoading(false)
     }
   }
 
-
   return (
-    <div className='fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4'>
-      <div className='bg-[#04112ad9] rounded-2xl border border-blue-400/30 w-full max-w-md p-6 backdrop-blur-xl'>
+    <div className='fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4'>
+      <div className='w-full max-w-md rounded-2xl border border-blue-400/30 bg-gray-900 p-5'>
         {/* Header */}
-        <div className='flex items-center justify-between mb-6'>
+        <div className='flex items-center justify-between mb-4'>
           <h2 className='text-2xl font-bold text-white'>Create Task</h2>
           <button
+            type='button'
             onClick={onClose}
             className='text-gray-400 hover:text-white transition'
           >
@@ -103,7 +106,7 @@ function TaskForm({ onClose, onTaskCreated }) {
           </button>
         </div>
 
-        {/* Error */}
+        {/* error */}
         {error && (
           <div className='mb-4 rounded-xl border border-red-400/30 bg-red-500/10 px-4 py-3 text-sm text-red-200'>
             {error}
@@ -111,7 +114,7 @@ function TaskForm({ onClose, onTaskCreated }) {
         )}
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className='space-y-4'>
+        <form onSubmit={handleSubmit} className='space-y-3'>
           {/* Title */}
           <div>
             <label className='block text-sm text-gray-200 mb-2'>Title *</label>
@@ -135,7 +138,7 @@ function TaskForm({ onClose, onTaskCreated }) {
               value={formData.description}
               onChange={handleChange}
               placeholder='Task description'
-              rows='3'
+              rows='2'
               className='w-full rounded-xl border border-blue-400/20 bg-white/5 px-4 py-3 text-white placeholder-gray-400 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-500/30'
             />
           </div>
@@ -146,7 +149,13 @@ function TaskForm({ onClose, onTaskCreated }) {
               Assign To *
             </label>
             {loadingMembers ? (
-              <div className='text-gray-400 text-sm'>Loading members...</div>
+              <div className='text-gray-400 text-sm'>
+                Loading members...
+              </div>
+            ) : members.length === 0 ? (
+              <div className='text-gray-400 text-sm'>
+                No members available
+              </div>
             ) : (
               <select
                 name='assignedTo'
@@ -179,10 +188,10 @@ function TaskForm({ onClose, onTaskCreated }) {
               <option value='low' className='bg-slate-900'>
                 Low
               </option>
-              <option value="medium" className="bg-slate-900">
+              <option value='medium' className='bg-slate-900'>
                 Medium
               </option>
-              <option value="high" className="bg-slate-900">
+              <option value='high' className='bg-slate-900'>
                 High
               </option>
             </select>
@@ -214,7 +223,7 @@ function TaskForm({ onClose, onTaskCreated }) {
           </div>
 
           {/* Buttons */}
-          <div className='flex gap-3 pt-4'>
+          <div className='flex gap-3 pt-2'>
             <button
               type='button'
               onClick={onClose}
@@ -224,8 +233,8 @@ function TaskForm({ onClose, onTaskCreated }) {
             </button>
             <button
               type='submit'
-              disabled={loading || loadingMembers}
-              className='flex-1 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 py-3 text-white font-semibold hover:opacity-95 transition disabled:opacity-60'
+              disabled={loading || loadingMembers || members.length === 0}
+              className='flex-1 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-900 py-3 text-white font-semibold hover:opacity-95 transition disabled:opacity-60'
             >
               {loading ? 'Creating...' : 'Create Task'}
             </button>
