@@ -2,6 +2,7 @@ import { useEffect, useState, useContext } from 'react'
 import { taskApi } from '../services/api'
 import Loader from '../components/Loader'
 import { AuthContext } from '../context/AuthContext'
+import socket from '../services/socket'
 
 function Dashboard() {
   const { user } = useContext(AuthContext)
@@ -32,6 +33,18 @@ function Dashboard() {
   
   useEffect(() => {
     fetchTasks()
+
+    const handleTaskUpdate = () => {
+      fetchTasks()
+    }
+
+    socket.on('task-assigned', handleTaskUpdate)
+    socket.on('task-completed', handleTaskUpdate)
+
+    return () => {
+      socket.off('task-assigned', handleTaskUpdate)
+      socket.off('task-completed', handleTaskUpdate)
+    }
   }, [])
 
   // Stats
@@ -119,7 +132,7 @@ function Dashboard() {
               {tasks.slice(0, 4).map((task) => (
                 <div
                   key={task._id}
-                  className='flex justify-between items-center border-b border-gray-200 pb-3'
+                  className='flex justify-between items-center border-b-2 border-gray-300 pb-3'
                 >
                   <div>
                     <p className='font-medium'>

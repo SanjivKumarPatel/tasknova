@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { Bell, User, LogOut } from 'lucide-react'
 import { AuthContext } from '../context/AuthContext'
 import { notificationApi } from '../services/api'
+import socket from '../services/socket'
 
 function Navbar() {
   const { isLoggedIn, user, logout } = useContext(AuthContext)
@@ -10,6 +11,8 @@ function Navbar() {
   const [unreadCount, setUnreadCount] = useState(0)
 
   useEffect(() => {
+    if (!isLoggedIn) return
+
     const fetchUnreadCount = async () => {
       try {
         const res = await notificationApi.getAllNotification()
@@ -26,8 +29,18 @@ function Navbar() {
       }
     }
 
-    if (isLoggedIn) {
-      fetchUnreadCount()
+    fetchUnreadCount()
+
+    const handleNewNotification = () => {
+      setUnreadCount((prev) => prev + 1)
+    }
+
+    socket.on('task-assigned', handleNewNotification)
+    socket.on('task-completed', handleNewNotification)
+
+    return () => {
+      socket.off('task-assigned', handleNewNotification)
+      socket.off('task-completed', handleNewNotification)
     }
   }, [isLoggedIn])
 
@@ -48,7 +61,7 @@ function Navbar() {
   }
 
   return (
-    <header className='h-20 bg-black bg-linear-to-r from-black to-blue-700 border rounded-md px-8 flex items-center justify-end'>
+    <header className='h-20 bg-black bg-linear-to-r from-black to-blue-700 border px-8 flex items-center justify-end'>
 
       {/* right side */}
       <div className='ml-8 flex items-center gap-4'>
