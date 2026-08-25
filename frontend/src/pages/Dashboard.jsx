@@ -31,21 +31,23 @@ function Dashboard() {
     }
   }
   
-  useEffect(() => {
+useEffect(() => {
+  fetchTasks()
+
+  const handleTaskUpdate = () => {
     fetchTasks()
+  }
 
-    const handleTaskUpdate = () => {
-      fetchTasks()
-    }
+  socket.on('task-assigned', handleTaskUpdate)
+  socket.on('task-completed', handleTaskUpdate)
+  socket.on('task-updated', handleTaskUpdate)
 
-    socket.on('task-assigned', handleTaskUpdate)
-    socket.on('task-completed', handleTaskUpdate)
-
-    return () => {
-      socket.off('task-assigned', handleTaskUpdate)
-      socket.off('task-completed', handleTaskUpdate)
-    }
-  }, [])
+  return () => {
+    socket.off('task-assigned', handleTaskUpdate)
+    socket.off('task-completed', handleTaskUpdate)
+    socket.off('task-updated', handleTaskUpdate)
+  }
+}, [])
 
   // Stats
   const total = tasks.length

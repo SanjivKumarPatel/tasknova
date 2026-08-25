@@ -1,4 +1,5 @@
-import { createContext, useState } from 'react'
+import { createContext, useEffect, useState } from 'react'
+import socket from '../services/socket'
 
 export const AuthContext = createContext()
 
@@ -35,6 +36,17 @@ export const AuthProvider = ({ children }) => {
       sessionStorage.getItem('token')
     )
   })
+
+  useEffect(() => {
+    if (!isLoggedIn || !user?._id) return
+
+    socket.connect()
+    socket.emit('join-room', user._id)
+
+    return () => {
+      socket.disconnect()
+    }
+  }, [isLoggedIn, user])
 
   const loading = false
 
