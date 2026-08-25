@@ -30,19 +30,42 @@ const userSchema = new mongoose.Schema(
 
     role: {
       type: String,
-      enum: ['admin', 'user'],
-      default: 'user',
+      enum: ['admin', 'member'],
+      default: 'member',
     },
-
-    status: {
-      type: String,
-      enum: ['active', 'inactive', 'blocked'],
-      default: 'active',
-    },
-
+    
     avatar: { type: String, default: '' },
 
     lastLogin: { type: Date, default: null },
+
+    rememberToken: {
+      type: String,
+      default: null,
+      select: false,
+    },
+
+    rememberTokenExpiry: {
+      type: Date,
+      default: null,
+      select: false,
+    },
+
+    resetOtp: {
+      type: String,
+      default: null,
+      select: false
+    },
+
+    resetOtpExpiry: {
+      type: Date,
+      default: null,
+      select: false
+    },
+
+    resetOtpVerified: {
+      type: Boolean,
+      default: false
+    }
   },
   { timestamps: true }
 )

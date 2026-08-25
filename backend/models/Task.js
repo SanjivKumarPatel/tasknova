@@ -53,7 +53,24 @@ const taskSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
       required: true
-    }
+    },
+
+    subtasks: [
+      {
+        title: String,
+        description: String,
+        priority: {
+          type: String,
+          enum: ['low', 'medium', 'high'],
+          default: 'medium'
+        },
+        estimatedTime: String,
+        completed: {
+          type: Boolean,
+          default: false
+        }
+      }
+    ]
   },
   { timestamps: true }
 )
