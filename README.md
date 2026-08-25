@@ -56,40 +56,47 @@ TaskNova is a full-stack task management and team collaboration platform built w
 - dotenv
 - CORS
 
-📂 Project Structure
+## 📁 Project Structure
 
+```text
 TaskNova/
 ├── backend/
 │   ├── config/
 │   │   ├── ai.js
 │   │   ├── db.js
 │   │   └── email.js
+│   │
 │   ├── controllers/
 │   │   ├── aiController.js
 │   │   ├── authController.js
 │   │   ├── notificationController.js
 │   │   ├── taskController.js
 │   │   └── teamController.js
+│   │
 │   ├── middleware/
 │   │   ├── adminMiddleware.js
 │   │   ├── asyncHandler.js
 │   │   ├── authMiddleware.js
 │   │   └── errorMiddleware.js
+│   │
 │   ├── models/
 │   │   ├── Notification.js
 │   │   ├── Task.js
 │   │   ├── Team.js
 │   │   └── User.js
+│   │
 │   ├── routes/
 │   │   ├── authRoutes.js
 │   │   ├── notificationRoutes.js
 │   │   ├── taskRoutes.js
 │   │   └── teamRoutes.js
+│   │
 │   ├── utils/
 │   │   ├── emailTemplates.js
 │   │   ├── generateOtp.js
-│   │   ├── generateToken.js
-│   │   └── socket.js
+│   │   └── generateToken.js
+│   │
+│   ├── socket.js
 │   ├── index.js
 │   └── package.json
 │
@@ -101,13 +108,16 @@ TaskNova/
 │   │   ├── context/
 │   │   ├── layouts/
 │   │   ├── pages/
-│   │   └── services/
+│   │   ├── services/
+│   │   ├── App.jsx
+│   │   └── main.jsx
+│   │
 │   ├── index.html
 │   ├── package.json
 │   └── vite.config.js
 │
 └── README.md
-
+```
 
 ## Core Data Models
 
