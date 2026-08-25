@@ -4,6 +4,7 @@ import { AuthContext } from '../context/AuthContext'
 import { teamApi } from '../services/api.js'
 import Loader from '../components/Loader.jsx'
 import AddMemberForm from '../components/AddMemberForm'
+import socket from '../services/socket'
 
 function Teams() {
   const { user } = useContext(AuthContext)
@@ -26,12 +27,59 @@ function Teams() {
   })
 
   useEffect(() => {
-    fetchTeams()
-  }, [])
+    fetchTeams(true)
 
-  const fetchTeams = async () => {
+    const handleTeamCreated = (data) => {
+      setTeams((prev) => [data.team, ...prev])
+    }
+
+    const handleTeamUpdated = (data) => {
+      console.log('🔄 Team updated event received')
+
+      setTeams((prev) => {
+        const exists = prev.some((team) => team._id === data.team._id)
+
+        if (exists) {
+          return prev.map((team) =>
+            team._id === data.team._id ? data.team : team
+          )
+        }
+
+        const isMember = data.team.members?.some(
+          (member) => member._id === user?._id
+        )
+
+        if (isMember) {
+          return [data.team, ...prev]
+        }
+
+        return prev.filter((team) => team._id !== data.team._id)
+      })
+    }
+
+    const handleTeamDeleted = (data) => {
+      setTeams((prev) =>
+        prev.filter((team) => team._id !== data.teamId)
+      )
+    }
+
+    socket.on('team-created', handleTeamCreated)
+    socket.on('team-updated', handleTeamUpdated)
+    socket.on('team-deleted', handleTeamDeleted)
+
+    return () => {
+      socket.off('team-created', handleTeamCreated)
+      socket.off('team-updated', handleTeamUpdated)
+      socket.off('team-deleted', handleTeamDeleted)
+    }
+  }, [user?._id])
+
+  const fetchTeams = async (showLoader = false) => {
     try {
-      setLoading(true)
+      if (showLoader) {
+        setLoading(true)
+      }
+
       setError('')
 
       const res = await teamApi.getAllTeams()
@@ -39,7 +87,9 @@ function Teams() {
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to fetch teams')
     } finally {
-      setLoading(false)
+      if (showLoader) {
+        setLoading(false)
+      }
     }
   }
 
@@ -63,10 +113,12 @@ function Teams() {
     try {
       setError('')
 
-      const res = await teamApi.createTeam(formData.name, formData.description)
+      await teamApi.createTeam(
+      formData.name,
+      formData.description
+    )
 
-      setTeams((prev) => [res.data.team, ...prev])
-      resetForm()
+    resetForm()
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to create team')
     }
@@ -90,14 +142,12 @@ function Teams() {
     }
 
     try {
-      const res = await teamApi.updateTeam(
+      setError('')
+
+      await teamApi.updateTeam(
         editTeamId,
         editFormData.name,
         editFormData.description
-      )
-
-      setTeams((prev) =>
-        prev.map((team) => (team._id === editTeamId ? res.data.team : team))
       )
 
       setEditTeamId(null)
@@ -114,8 +164,6 @@ function Teams() {
   const handleDeleteTeam = async (teamId) => {
     try {
       await teamApi.deleteTeam(teamId)
-
-      setTeams((prev) => prev.filter((team) => team._id !== teamId))
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to delete team')
     }
@@ -145,7 +193,7 @@ function Teams() {
   return (
     <div className="min-h-full w-full bg-gray-100 text-gray-900 px-6 py-8 md:px-10">
       {/* header */}
-      <div className="mb-8 px-6 py-3 flex items-center justify-between bg-gray-300 rounded-xl">
+      <div className="mb-8 flex flex-col gap-4 rounded-xl border border-gray-200 bg-gray-300 px-6 py-4 md:flex-row md:items-center md:justify-between">
         <div>
           <h1 className="text-3xl font-bold">Teams</h1>
 

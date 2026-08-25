@@ -1,5 +1,6 @@
 import asyncHandler from '../middleware/asyncHandler.js'
 import Team from '../models/Team.js'
+import { getSocket } from '../utils/socket.js'
 
 export const createTeam = asyncHandler(async (req, res) => {
   const userId = req.user.id
@@ -18,6 +19,11 @@ export const createTeam = asyncHandler(async (req, res) => {
   })
 
   const populatedTeam = await Team.findById(team._id).populate('createdBy members', 'name email')
+  const io = getSocket()
+
+  io.to(`user:${userId}`).emit('team-created', {
+    team: populatedTeam
+  })
 
   res.status(201).json({
     success: true,
@@ -28,16 +34,21 @@ export const createTeam = asyncHandler(async (req, res) => {
 
 export const getAllTeams = asyncHandler(async (req, res) => {
   const userId = req.user.id
-  const query = req.user.role === 'admin'
-    ? {}
-    : { members: userId }
 
-  const teams = await Team.find(query).populate(
-    'createdBy members',
-    'name email'
-  )
+  const query =
+    req.user.role === 'admin'
+      ? {}
+      : { members: userId }
 
-  res.status(200).json({ success: true, count: teams.length,teams })
+  const teams = await Team.find(query)
+    .populate('createdBy members', 'name email')
+    .sort({ createdAt: -1 })
+
+  res.status(200).json({
+    success: true,
+    count: teams.length,
+    teams
+  })
 })
 
 export const getTeam = asyncHandler(async (req, res) => {
@@ -45,6 +56,7 @@ export const getTeam = asyncHandler(async (req, res) => {
   const teamId = req.params.id
 
   const team = await Team.findById(teamId).populate('createdBy members', 'name email')
+  
 
   if (!team) {
     const error = new Error('Team not found')
@@ -76,6 +88,12 @@ export const updateTeam = asyncHandler(async (req, res) => {
     throw error
   }
 
+  if (req.user.role !== 'admin') {
+    const error = new Error('Only admin can update teams')
+    error.statusCode = 403
+    throw error
+  }
+
   const { name, description, status } = req.body
 
   if (name) team.name = name.trim()
@@ -84,6 +102,13 @@ export const updateTeam = asyncHandler(async (req, res) => {
 
   await team.save()
   team = await Team.findById(teamId).populate('createdBy members', 'name email')
+  const io = getSocket()
+
+  team.members.forEach((member) => {
+    io.to(`user:${member._id.toString()}`).emit('team-updated', {
+     team
+    })
+  })
 
   res.status(200).json({
     success: true,
@@ -102,10 +127,28 @@ export const deleteTeam = asyncHandler(async (req, res) => {
     error.statusCode = 404
     throw error
   }
+  if (req.user.role !== 'admin') {
+    const error = new Error('Only admin can delete teams')
+    error.statusCode = 403
+    throw error
+  }
+
+  const memberIds = team.members.map((member) => member.toString())
 
   await team.deleteOne()
 
-  res.status(200).json({ success: true, message: 'Team deleted successfully' })
+  const io = getSocket()
+
+  memberIds.forEach((memberId) => {
+    io.to(`user:${memberId}`).emit('team-deleted', {
+      teamId
+    })
+  })
+
+  res.status(200).json({
+    success: true,
+    message: 'Team deleted successfully'
+  })
 })
 
 export const addMember = asyncHandler(async (req, res) => {
@@ -124,6 +167,11 @@ export const addMember = asyncHandler(async (req, res) => {
     error.statusCode = 404
     throw error
   }
+  if (req.user.role !== 'admin') {
+    const error = new Error('Only admin can add members')
+    error.statusCode = 403
+    throw error
+  }
 
   const exists = team.members.some(
     (member) => member.toString() === memberId
@@ -138,6 +186,13 @@ export const addMember = asyncHandler(async (req, res) => {
   await team.save()
   
   team = await Team.findById(teamId).populate('createdBy members', 'name email')
+  const io = getSocket()
+
+  team.members.forEach((member) => {
+    io.to(`user:${member._id.toString()}`).emit('team-updated', {
+      team
+    })
+  })
 
   res.status(200).json({
     success: true,
@@ -158,6 +213,12 @@ export const removeMember = asyncHandler(async (req, res) => {
     throw error
   }
 
+  if (req.user.role !== 'admin') {
+    const error = new Error('Only admin can remove members')
+    error.statusCode = 403
+    throw error
+  }
+
   const exists = team.members.some(
   (member) => member.toString() === memberId
  )
@@ -172,6 +233,17 @@ export const removeMember = asyncHandler(async (req, res) => {
   await team.save()
   
   team = await Team.findById(teamId).populate('createdBy members', 'name email')
+  const io = getSocket()
+
+  io.to(`user:${memberId}`).emit('team-updated', {
+    team
+  })
+
+  team.members.forEach((member) => {
+    io.to(`user:${member._id.toString()}`).emit('team-updated', {
+      team
+    })
+  })
 
   res.status(200).json({
     success: true,
