@@ -136,12 +136,15 @@ export const forgotPassword = asyncHandler(async (req, res) => {
     })
 
     if (error) {
-      console.error('❌ Resend email failed:', error)
+      console.error('❌ Resend email failed:')
+      console.error('Name:', error.name)
+      console.error('Message:', error.message)
+      console.error('Status:', error.statusCode)
 
-      throw new Error('Failed to send OTP email')
+      throw error
     }
 
-    console.log('📧 OTP email sent:', data?.id)
+    console.log('📧 OTP email sent successfully:', data?.id)
 
     res.status(200).json({
       success: true,
@@ -149,15 +152,22 @@ export const forgotPassword = asyncHandler(async (req, res) => {
     })
 
   } catch (err) {
-    console.error('❌ OTP email failed:', err.message)
+    console.error('❌ OTP email failed:')
+    console.error('Message:', err.message)
+    console.error('Status:', err.statusCode)
 
     user.resetOtp = null
     user.resetOtpExpiry = null
+    user.resetOtpVerified = false
 
     await user.save()
 
-    const error = new Error('Failed to send OTP email')
-    error.statusCode = 500
+    const error = new Error(
+      err.message || 'Failed to send OTP email'
+    )
+
+    error.statusCode = err.statusCode || 500
+
     throw error
   }
 })
