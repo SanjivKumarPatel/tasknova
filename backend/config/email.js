@@ -15,8 +15,22 @@ export const getTransporter = () => {
         pass: process.env.EMAIL_PASS,
       },
     })
-    console.log('Email transporter initialized')
+
+    console.log('📧 Email transporter initialized')
+
+    transporter.verify((error, success) => {
+      if (error) {
+        console.error('❌ Email transporter verification failed:')
+        console.error('Code:', error.code)
+        console.error('Command:', error.command)
+        console.error('Response:', error.response)
+        console.error('Message:', error.message)
+      } else {
+        console.log('✅ Email server ready:', success)
+      }
+    })
   }
+
   return transporter
 }
 
