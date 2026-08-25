@@ -1,37 +1,15 @@
-import nodemailer from 'nodemailer'
+import { Resend } from 'resend'
 
-let transporter = null
+let resend = null
 
-export const getTransporter = () => {
-  if (!transporter) {
-    const port = Number(process.env.EMAIL_PORT)
+export const getResend = () => {
+  if (!resend) {
+    resend = new Resend(process.env.RESEND_API_KEY)
 
-    transporter = nodemailer.createTransport({
-      host: process.env.EMAIL_HOST,
-      port,
-      secure: port === 465,
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
-    })
-
-    console.log('📧 Email transporter initialized')
-
-    transporter.verify((error, success) => {
-      if (error) {
-        console.error('❌ Email transporter verification failed:')
-        console.error('Code:', error.code)
-        console.error('Command:', error.command)
-        console.error('Response:', error.response)
-        console.error('Message:', error.message)
-      } else {
-        console.log('✅ Email server ready:', success)
-      }
-    })
+    console.log('📧 Resend initialized')
   }
 
-  return transporter
+  return resend
 }
 
-export default getTransporter
+export default getResend
