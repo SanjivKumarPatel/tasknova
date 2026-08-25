@@ -3,6 +3,9 @@ import { ToastContainer } from 'react-toastify'
 import ForgotPassword from './pages/ForgotPassword'
 import VerifyOtp from './pages/VerifyOtp'
 import ResetPassword from './pages/ResetPassword'
+import socket from './services/socket'
+import { useContext, useEffect } from 'react'
+import { AuthContext } from './context/AuthContext'
 
 import Login from './pages/Login'
 import Register from './pages/Register'
@@ -17,6 +20,28 @@ import ProtectedRoute from './components/ProtectedRoute'
 import DashboardLayout from './layouts/DashboardLayout'
 
 function App() {
+  const { user, isLoggedIn } = useContext(AuthContext)
+
+  useEffect(() => {
+    if (!isLoggedIn || !user?._id) return
+
+    const handleConnect = () => {
+      console.log('🔌 Connected to Socket.IO:', socket.id)
+
+      socket.emit('join-room', user._id)
+
+      console.log('👤 Joined user room:', user._id)
+    }
+
+    socket.on('connect', handleConnect)
+    socket.connect()
+
+    return () => {
+      socket.off('connect', handleConnect)
+      socket.disconnect()
+    }
+  }, [isLoggedIn, user?._id])
+
   return (
     <>
       <ToastContainer />
