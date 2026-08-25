@@ -4,6 +4,7 @@ import { Bell, Check, CheckCheck, Trash2 } from 'lucide-react'
 import { notificationApi } from '../services/api'
 import { AuthContext } from '../context/AuthContext'
 import Loader from '../components/Loader'
+import socket from '../services/socket'
 
 function Notifications() {
   const [notifications, setNotifications] = useState([])
@@ -13,10 +14,25 @@ function Notifications() {
   const { isLoggedIn } = useContext(AuthContext)
 
   useEffect(() => {
-    if (isLoggedIn) {
-      fetchNotifications()
-    }
-  }, [isLoggedIn])
+    if (!isLoggedIn) return
+
+    fetchNotifications()
+
+  const handleNotification = (data) => {
+    setNotifications((prev) => [
+      data.notification,
+      ...prev
+    ])
+  }
+
+  socket.on('task-assigned', handleNotification)
+  socket.on('task-completed', handleNotification)
+
+  return () => {
+    socket.off('task-assigned', handleNotification)
+    socket.off('task-completed', handleNotification)
+  }  
+   }, [isLoggedIn])
 
   const fetchNotifications = async () => {
     try {

@@ -5,6 +5,7 @@ import { AuthContext } from '../context/AuthContext'
 import { taskApi } from '../services/api.js'
 import Loader from '../components/Loader.jsx'
 import TaskForm from '../components/TaskForm'
+import socket from '../services/socket'
 
 function Tasks() {
   const { user } = useContext(AuthContext)
@@ -15,12 +16,27 @@ function Tasks() {
   const [loadingSubtasks, setLoadingSubtasks] = useState(null)
 
   useEffect(() => {
+    fetchTasks(true)
+
+  const handleTaskUpdate = () => {
     fetchTasks()
+  }
+
+  socket.on('task-assigned', handleTaskUpdate)
+  socket.on('task-updated', handleTaskUpdate)
+
+  return () => {
+    socket.off('task-assigned', handleTaskUpdate)
+    socket.off('task-updated', handleTaskUpdate)
+  }
   }, [])
 
-  const fetchTasks = async () => {
+  const fetchTasks = async (showLoader = false) => {
     try {
-      setLoading(true)
+      if (showLoader) {
+        setLoading(true)
+      }
+
       setError('')
 
       const res = await taskApi.getAllTasks()
@@ -28,7 +44,9 @@ function Tasks() {
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to fetch tasks')
     } finally {
-      setLoading(false)
+      if (showLoader) {
+        setLoading(false)
+      }
     }
   }
 
@@ -95,9 +113,7 @@ function Tasks() {
       <div className='mb-8 flex flex-col gap-4 rounded-xl border border-gray-200 bg-gray-300 px-6 py-4 md:flex-row md:items-center md:justify-between'>
         <div>
           <div className='flex items-center gap-3'>
-            <h1 className='text-3xl font-bold'>
-              Tasks
-            </h1>
+            <h1 className='text-3xl font-bold'>Tasks</h1>
 
             <span className='flex items-center gap-1 rounded-full bg-blue-200 px-3 py-1 text-xs font-semibold text-blue-600'>
               <Sparkles size={13} />

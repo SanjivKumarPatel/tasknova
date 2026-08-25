@@ -1,6 +1,7 @@
 import asyncHandler from '../middleware/asyncHandler.js'
 import Task from '../models/Task.js'
 import Notification from '../models/Notification.js'
+import { getSocket } from '../utils/socket.js'
 
 export const createTask = asyncHandler(async (req, res) => {
   const userId = req.user.id
@@ -30,11 +31,17 @@ export const createTask = asyncHandler(async (req, res) => {
     assignedTo
   })
 
-  await Notification.create({
+  const notification = await Notification.create({
     recipient: assignedTo,
     type: 'taskAssignment',
     taskId: task._id,
     message: `You have been assigned a new task: "${task.title}"`
+  })
+
+  const io = getSocket()
+
+  io.to(`user:${assignedTo}`).emit('task-assigned', {
+    notification
   })
 
   const populatedTask = await Task.findById(task._id).populate(
@@ -133,20 +140,42 @@ export const updateTask = asyncHandler(async (req, res) => {
   await task.save()
 
   if (oldStatus !== 'completed' && task.status === 'completed') {
-  await Notification.create({
-    recipient: task.createdBy,
-    type: 'completion',
-    taskId: task._id,
-    message: `Your task "${task.title}" has been completed`
-  })
-}
+    const notification = await Notification.create({
+      recipient: task.createdBy,
+      type: 'completion',
+      taskId: task._id,
+      message: `Your task "${task.title}" has been completed`
+    })
+
+    const io = getSocket()
+
+    io.to(`user:${task.createdBy}`).emit('task-completed', {
+      notification
+    })
+  }
 
   const updatedTask = await Task.findById(taskId).populate(
     'createdBy assignedTo',
     'name email'
   )
 
-  res.status(200).json({ success: true, message: 'Task updated successfully', task: updatedTask })
+  const io = getSocket()
+
+  io.to(`user:${task.assignedTo}`).emit('task-updated', {
+    task: updatedTask
+  })
+
+  if (task.createdBy.toString() !== task.assignedTo.toString()) {
+    io.to(`user:${task.createdBy}`).emit('task-updated', {
+      task: updatedTask
+    })
+  }
+
+  res.status(200).json({
+    success: true,
+    message: 'Task updated successfully',
+    task: updatedTask
+  })
 })
 
 export const deleteTask = asyncHandler(async (req, res) => {
