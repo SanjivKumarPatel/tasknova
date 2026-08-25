@@ -1,7 +1,7 @@
 import asyncHandler from '../middleware/asyncHandler.js'
 import User from '../models/User.js'
 import generateToken from '../utils/generateToken.js'
-import getTransporter from '../config/email.js'
+import getResend from '../config/email.js'
 import { generateOtp } from '../utils/generateOtp.js'
 import { resetOtpTemplate } from '../utils/emailTemplates.js'
 
@@ -98,13 +98,16 @@ export const getProfile = asyncHandler(async (req, res) => {
 
 export const forgotPassword = asyncHandler(async (req, res) => {
   const { email } = req.body
+
   if (!email) {
     const error = new Error('Email is required')
     error.statusCode = 400
     throw error
   }
 
-  const user = await User.findOne({ email: email.toLowerCase().trim() })
+  const user = await User.findOne({
+    email: email.toLowerCase().trim()
+  })
 
   if (!user) {
     const error = new Error('User not found')
@@ -117,39 +120,56 @@ export const forgotPassword = asyncHandler(async (req, res) => {
   user.resetOtp = otp
   user.resetOtpExpiry = new Date(Date.now() + 5 * 60 * 1000)
   user.resetOtpVerified = false
+
   await user.save()
 
   try {
-    const transporter = getTransporter()
+    const resend = getResend()
 
     const emailContent = resetOtpTemplate(user.name, otp)
 
-    await transporter.sendMail({
+    const { data, error } = await resend.emails.send({
       from: process.env.EMAIL_FROM,
       to: user.email,
       subject: 'Password Reset OTP',
       html: emailContent
     })
 
+    if (error) {
+      console.error('❌ Resend email failed:')
+      console.error('Name:', error.name)
+      console.error('Message:', error.message)
+      console.error('Status:', error.statusCode)
+
+      throw error
+    }
+
+    console.log('📧 OTP email sent successfully:', data?.id)
+
     res.status(200).json({
       success: true,
       message: 'OTP sent to your email'
     })
+
   } catch (err) {
-  console.error('❌ OTP email failed')
-  console.error('Code:', err.code)
-  console.error('Command:', err.command)
-  console.error('Response:', err.response)
-  console.error('Message:', err.message)
+    console.error('❌ OTP email failed:')
+    console.error('Message:', err.message)
+    console.error('Status:', err.statusCode)
 
-  user.resetOtp = null
-  user.resetOtpExpiry = null
-  await user.save()
+    user.resetOtp = null
+    user.resetOtpExpiry = null
+    user.resetOtpVerified = false
 
-  const error = new Error('Failed to send OTP email')
-  error.statusCode = 500
-  throw error
-}
+    await user.save()
+
+    const error = new Error(
+      err.message || 'Failed to send OTP email'
+    )
+
+    error.statusCode = err.statusCode || 500
+
+    throw error
+  }
 })
 
 export const verifyOtp = asyncHandler(async (req, res) => {
