@@ -101,21 +101,21 @@ function Profile() {
       {!isEditing ? (
         <div className='rounded-3xl border border-gray-200 bg-white p-8 shadow-sm'>
           <div className='flex items-center gap-4 border-b-2 border-gray-300 pb-6'>
-            <div className='flex h-16 w-16 items-center justify-center rounded-full bg-blue-100 text-blue-600'>
+            <div className='flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-blue-100 text-blue-600'>
               <User size={30} />
             </div>
-            <div>
+            <div className='min-w-0'>
               <h2 className='text-xl font-bold text-gray-800'>{user.name}</h2>
               <p className='mt-1 text-gray-500'>{user.email}</p>
             </div>
           </div>
 
-          <div className='mt-6 grid gap-4 md:grid-cols-3'>
-            <div className='flex items-start gap-4 rounded-2xl bg-green-100 p-5'>
-              <div className='rounded-xl bg-blue-100 p-3 text-blue-600'>
+          <div className='mt-6 flex w-full flex-col gap-4'>
+            <div className='flex items-start gap-4 rounded-2xl bg-blue-100 p-5'>
+              <div className='shrink-0 rounded-xl bg-blue-100 p-3 text-blue-600'>
                 <User size={20} />
               </div>
-              <div>
+              <div className='min-w-0'>
                 <p className='text-sm text-gray-500'>Full Name</p>
                 <h3 className='mt-1 text-lg font-semibold text-gray-800'>
                   {user.name}
@@ -124,22 +124,22 @@ function Profile() {
             </div>
 
             <div className='flex items-start gap-4 rounded-2xl bg-blue-100 p-5'>
-              <div className='rounded-xl bg-blue-100 p-3 text-blue-600'>
+              <div className='shrink-0 rounded-xl bg-blue-100 p-3 text-blue-600'>
                 <Mail size={20} />
               </div>
-              <div>
+              <div className='min-w-0'>
                 <p className='text-sm text-gray-500'>Email Address</p>
-                <h3 className='mt-1 text-lg font-semibold text-gray-800'>
+                <h3 className='mt-1 text-lg font-semibold text-gray-800 break-all leading-tight'>
                   {user.email}
                 </h3>
               </div>
             </div>
 
             <div className='flex items-start gap-4 rounded-2xl bg-blue-100 p-5'>
-              <div className='rounded-xl bg-blue-100 p-3 text-blue-600'>
+              <div className='shrink-0 rounded-xl bg-blue-100 p-3 text-blue-600'>
                 <Shield size={20} />
               </div>
-              <div>
+              <div className='min-w-0'>
                 <p className='text-sm text-gray-500'>Role</p>
                 <h3 className='mt-1 text-lg font-semibold capitalize text-gray-800'>
                   {user.role || 'member'}
