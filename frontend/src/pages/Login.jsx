@@ -47,7 +47,7 @@ function Login() {
 
 
   return (
-      <div className="min-h-screen flex items-center justify-center bg-linear-to-t from-gray-50 via-cyan-300 to-blue-500 px-4 py-8">
+      <div className="min-h-screen flex items-center justify-center bg-linear-to-t from-gray-50 via-cyan-300 to-blue-500 px-7 py-4">
 
       {/* card */}
       <div className="w-full max-w-md rounded-2xl border border-gray-200 bg-white px-8 py-10 shadow-xl">

@@ -24,7 +24,7 @@ function ForgotPassword() {
             toast.success('OTP sent to your email')
             navigate('/verify-otp')
         } catch (err) {
-            const message = err.response?.data?.message || 'Failed to send OTP'
+            const message = 'Unable to send OTP. Please try again later.'
             setError(message)
             toast.error(message)
         } finally {
@@ -50,7 +50,7 @@ function ForgotPassword() {
                 <div className='text-center mb-8'>
                     <h2 className='text-2xl font-semibold'>Reset Password</h2>
                     <p className='text-gray-700 mt-2 text-sm'>
-                        Enter your email to receive an OTP
+                        Password reset is currently available for the project administrator account only.
                     </p>
                 </div>
 
@@ -71,7 +71,7 @@ function ForgotPassword() {
                       required
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      placeholder='example@gmail.com'
+                      placeholder='Enter administrator email'
                       className='w-full rounded-xl border border-gray-700 bg-gray-100 px-4 py-3 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-500/30'
                     />
                     </div>

@@ -58,25 +58,25 @@ function Register() {
   }
 
   return (
-      <div className="min-h-screen flex items-center justify-center p-0 bg-linear-to-t from-gray-50 via-cyan-300 to-blue-500">
+      <div className="min-h-screen flex items-center justify-center px-7 py-4 sm:p-6 bg-linear-to-t from-gray-50 via-cyan-300 to-blue-500">
 
       {/* card */}
-      <div className="w-full max-w-md rounded-2xl border border-gray-200 bg-white p-5 shadow-xl">
+      <div className="w-full max-w-md rounded-2xl border border-gray-200 bg-white p-5 sm:p-6 shadow-xl">
         
         <div className='text-center mb-2'>        
-          <h1 className='text-4xl font-bold tracking-tight'>
+          <h1 className='text-3xl sm:text-4xl font-bold tracking-tight'>
             <span className='text-blue-400'>Task</span>
             <span className='text-blue-900'>Nova</span>
           </h1>
 
-          <p className='mt-2 text-[11px] font-semibold tracking-[4px] uppercase'>
+          <p className='mt-1 text-[9px] sm:text-[11px] font-semibold tracking-[3px] sm:tracking-[4px] uppercase'>
             Organize※ Collaborate※ Achieve
           </p>
         </div>
 
         {/* heading */}
-        <div className='text-center mb-2'>
-          <h2 className='text-2xl font-semibold'>
+        <div className='text-center mb-3'>
+          <h2 className='text-2xl sm:text-2xl font-semibold'>
             Create Account ✨
           </h2>
 
@@ -93,7 +93,7 @@ function Register() {
         )}
 
         {/* form */}
-        <form onSubmit={handleSubmit} className='space-y-3'>
+        <form onSubmit={handleSubmit} className='space-y-2.5 sm:space-y-3'>
           {/* name */}
           <div>
             <label className='block text-sm font-medium mb-1'>
@@ -175,7 +175,7 @@ function Register() {
           <button
             type='submit'
             disabled={loading}
-            className='w-full rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 mt-5 py-2 text-white font-semibold hover:opacity-75 transition disabled:opacity-60'
+            className='w-full rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 mt-4 sm:mt-5 py-2.5 text-white font-semibold hover:opacity-75 transition disabled:opacity-60'
           >
             {loading ? 'Creating Account...' : 'Create Account ➡️'}
           </button>
