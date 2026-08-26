@@ -1,11 +1,11 @@
 import { useContext, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Bell, User, LogOut } from 'lucide-react'
+import { Menu, Bell, User, LogOut } from 'lucide-react'
 import { AuthContext } from '../context/AuthContext'
 import { notificationApi } from '../services/api'
 import socket from '../services/socket'
 
-function Navbar() {
+function Navbar({ onOpenSidebar, onToggleSidebar }) {
   const { isLoggedIn, user, logout } = useContext(AuthContext)
   const navigate = useNavigate()
   const [unreadCount, setUnreadCount] = useState(0)
@@ -61,23 +61,41 @@ function Navbar() {
   }
 
   return (
-    <header className='h-20 bg-black bg-linear-to-r from-black to-blue-700 border px-8 flex items-center justify-end'>
+    <header className='h-20 bg-black bg-linear-to-r from-black to-blue-700 border px-4 md:px-8 flex items-center justify-between'>
+      {/* Mobile menu */}
+      <button
+        type='button'
+        onClick={onOpenSidebar}
+        className='rounded-xl p-3 text-white transition hover:bg-white/10 md:hidden'
+        aria-label='Open sidebar'
+      >
+        <Menu size={28} />
+      </button>
+
+      {/* Desktop menu */}
+      <button
+        type='button'
+        onClick={onToggleSidebar}
+        className='hidden rounded-xl p-3 text-white transition hover:bg-white/10 md:flex'
+        aria-label='Toggle sidebar'
+      >
+        <Menu size={28} />
+      </button>
 
       {/* right side */}
-      <div className='ml-8 flex items-center gap-4'>
+      <div className='flex items-center gap-2 md:gap-4'>
         
-
         {/* profile */}
         <button
           type='button'
           onClick={handleProfile}
-          className='flex items-center gap-3 rounded-2xl border border-blue-500/10 bg-[#0b1328] px-4 py-2 min-w-[220px] text-left hover:border-blue-500 transition'
+          className='flex items-center gap-3 rounded-2xl border border-blue-500/10 bg-[#0b1328] px-3 py-2 text-left transition hover:border-blue-500 md:min-w-[220px] md:px-4'
         >
           <div className='flex h-11 w-11 items-center justify-center rounded-full bg-linear-to-br from-blue-500 to-indigo-600 text-white'>
             <User size={18} />
           </div>
 
-          <div className='flex-1 leading-tight'>
+          <div className='hidden flex-1 leading-tight md:block'>
             <p className='text-sm font-semibold text-white'>
               {user?.name || 'User'}
             </p>
@@ -111,7 +129,7 @@ function Navbar() {
         >
           <LogOut size={18} />
 
-          <span className='text-sm font-medium'>Logout</span>
+          <span className='hidden text-sm font-medium md:inline'>Logout</span>
         </button>
       </div>
     </header>
