@@ -152,20 +152,20 @@ function Notifications() {
           {notifications.map((notification) => (
             <div
               key={notification._id}
-              className={`flex items-start justify-between rounded-3xl border p-6 shadow-sm transition hover:shadow-md ${
+              className={`flex flex-col gap-5 rounded-3xl border p-6 shadow-sm transition hover:shadow-md md:flex-row md:items-start md:justify-between ${
                 notification.isRead
                   ? 'border-gray-400 bg-white'
                   : 'border-blue-400 bg-blue-50/40'
               }`}
             >
               {/* left */}
-              <div className='flex items-start gap-4'>
+              <div className='flex min-w-0 flex-1 items-start gap-4'>
                 <div className='rounded-2xl bg-blue-100 p-3 text-blue-600'>
                   <Bell size={22} />
                 </div>
 
-                <div>
-                  <p className='font-medium text-gray-800'>
+                <div className='min-w-0 flex-1'>
+                  <p className='break-words font-medium text-gray-800'>
                     {notification.message}
                   </p>
 
@@ -176,12 +176,12 @@ function Notifications() {
               </div>
 
               {/* delete */}
-              <div className='flex items-center gap-2'>
+              <div className='flex w-full flex-col gap-2 md:w-auto md:flex-row md:items-center'>
                 {!notification.isRead && (
                   <button
                     type='button'
                     onClick={() => handleMarkAsRead(notification._id)}
-                    className='flex items-center gap-2 rounded-xl border border-blue-500 bg-blue-50 px-4 py-2 text-sm font-medium text-blue-600 transition hover:bg-blue-100'
+                    className='flex w-full items-center justify-center gap-2 rounded-xl border border-blue-500 bg-blue-50 px-4 py-2 text-sm font-medium text-blue-600 transition hover:bg-blue-100 md:w-auto'
                   >
                     <Check size={16} />
                     Mark as read
@@ -191,7 +191,7 @@ function Notifications() {
                 <button
                   type='button'
                   onClick={() => handleDelete(notification._id)}
-                  className='flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-2 text-sm font-medium text-red-600 transition hover:bg-red-100'
+                  className='flex w-full items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-2 text-sm font-medium text-red-600 transition hover:bg-red-100 md:w-auto'
                 >
                   <Trash2 size={16} />
                   Delete
